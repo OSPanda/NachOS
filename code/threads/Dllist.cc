@@ -70,7 +70,7 @@ void * DLList::Remove(int *keyPtr)
         first = first->next;
         if(!first)
         {
-            currentThread->Yield();
+            //currentThread->Yield();
             first = last = NULL;
         }else
         {
@@ -80,7 +80,7 @@ void * DLList::Remove(int *keyPtr)
         //currentThread->Yield();// switch to other one
         d->next = NULL;
         //currentThread->Yield();
-        cout << "out: key->"<<d->key<< " value->"<< *(int *)d->item<<endl ;
+        //cout << "out: key->"<<d->key<< " value->"<< *(int *)d->item<<endl ;
         d->key = *keyPtr;
         
         return d->item;
@@ -112,7 +112,7 @@ void DLList::SortedInsert(void *item , int sortKey)
         last = newone;
         //currentThread->Yield();
     }else{
-        currentThread->Yield();
+        // currentThread->Yield();
         DLLElement* now= first;
         // insert after the now
         while(now != NULL)
@@ -131,14 +131,14 @@ void DLList::SortedInsert(void *item , int sortKey)
                 break;
             }
         }
-        DEBUG('t', "find one to delete\n");
+        // DEBUG('t', "find one to delete\n");
         //currentThread->Yield();//find place to insert and swtich 
 
         if(now == NULL)
         { // insert to the head of list
-            DEBUG('t' , "next is newone\n");
+            // DEBUG('t' , "next is newone\n");
             first->prev = newone; // frist is  null
-            DEBUG('t' , "next is newone"); 
+            // DEBUG('t' , "next is newone"); 
             //currentThread->Yield();
             newone->next = first;
             //currentThread->Yield();
@@ -157,7 +157,7 @@ void DLList::SortedInsert(void *item , int sortKey)
             }
             else
             {
-                DEBUG('t' , "next is newone");
+                // DEBUG('t' , "next is newone");
                 newone -> next = now->next;
                 //currentThread->Yield();
                 newone->next->prev = newone;
@@ -175,7 +175,7 @@ void * DLList::SortedRemove(int sortKey)
     if(!IsEmpty())
     {
        DLLElement* now = first;
-       while(now!=NULL&&now->key == sortKey)
+       while(now!=NULL&&now->key != sortKey)
        {
            now = now ->next;
        }
@@ -205,7 +205,7 @@ void * DLList::SortedRemove(int sortKey)
              now -> next->prev = now->prev;
 
           }
-          return now;
+          return now->item;
        }
     }
     return NULL;
