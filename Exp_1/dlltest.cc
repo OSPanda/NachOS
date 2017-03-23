@@ -11,8 +11,15 @@ intNode(int i) {
     return place;
 }
 
+void Impl_of_IsEmpty() {
+    DLList* t = new DLList();
+    assert(t->IsEmpty() == 0);
+    t->Prepend(NULL);
+    assert(t->IsEmpty() == 1);
+}
+
 void 
-Ppd_Apd_at_Head_and_Tail_on_Empty_List(){
+Ppd_Apd_at_Head_and_Tail_on_Empty_List() {
     int i = -2, j = -2;
     int *thing;
     DLList* t = new DLList();
