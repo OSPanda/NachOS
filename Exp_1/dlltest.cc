@@ -2,6 +2,7 @@
 #include "dllist.h"
 #include <assert.h>
 #include <cstdio>
+#include <cstdlib>
 
 int* 
 intNode(int i) {
