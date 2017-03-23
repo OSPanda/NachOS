@@ -30,7 +30,7 @@ DLList::~DLList()
 //add to end of list
 void DLList::Append(void *item)
 {
-   if(!IsEmpty())
+   if(IsEmpty())
    {
        DLLElement* now = new DLLElement(item ,last->key+1);
        last->next = now;
@@ -45,7 +45,7 @@ void DLList::Append(void *item)
 
 void DLList::Prepend(void *item)
 {
-    if(!IsEmpty())
+    if(IsEmpty())
     {
         DLLElement * now = new DLLElement(item, first->key -1 );
         first->prev = now ;
@@ -59,7 +59,7 @@ void DLList::Prepend(void *item)
 
 void * DLList::Remove(int *keyPtr)
 {
-    if(IsEmpty())
+    if(!IsEmpty())
     {
         return NULL;
     }
@@ -81,8 +81,9 @@ void * DLList::Remove(int *keyPtr)
         d->next = NULL;
         //currentThread->Yield();
         //cout << "out: key->"<<d->key<< " value->"<< *(int *)d->item<<endl ;
-        d->key = *keyPtr;
-        
+        if( keyPtr != NULL){
+          *keyPtr = d->key ;
+        }
         return d->item;
     }
 }
@@ -92,11 +93,11 @@ bool DLList::IsEmpty()
 
     if(!this->first && !this->last)
     {
-        return true;
+        return false;
     }
     else
     {
-        return false;
+        return true;
     }
 }
 
@@ -104,7 +105,7 @@ void DLList::SortedInsert(void *item , int sortKey)
 {
     DLLElement * newone  = new DLLElement(item,sortKey);
     //currentThread->Yield();
-    if(IsEmpty())
+    if(!IsEmpty())
     {  // has no one before
         //currentThread->Yield();
         first = newone;
@@ -172,7 +173,7 @@ void DLList::SortedInsert(void *item , int sortKey)
 
 void * DLList::SortedRemove(int sortKey)
 {
-    if(!IsEmpty())
+    if(IsEmpty())
     {
        DLLElement* now = first;
        while(now!=NULL&&now->key != sortKey)
