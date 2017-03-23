@@ -3,8 +3,6 @@
 #ifndef DLLIST_H
 #define DLLIST_H
 
-#define STU_NUM 3831
-
 class DLLElement {
 	public:
 		DLLElement( void *itemPtr, int sortKey ); // initialize a list element
