@@ -99,12 +99,14 @@ DLList::SortedInsert(void *item, int sortKey)
 				nowpos->next = newElem;
 				last = newElem;
 			} else {
+				if (first == nowpos) {
+					first = newElem;
+				} else {
+					nowpos->prev->next = newElem;
+				}
 				newElem->prev = nowpos->prev;
 				newElem->next = nowpos;
 				nowpos->prev = newElem;
-				if (first == nowpos) {
-					first = newElem;
-				}
 			}
 		} else if(nowpos == first) {
 			newElem->next = nowpos;
@@ -143,15 +145,17 @@ DLList::SortedRemove(int sortKey)
 		thing = nowpos->item;
 		if(nowpos == first) {
 			first = first->next;
-			first->prev = NULL;
 			if(first == NULL) {
 				last = NULL;
+			} else {
+				first->prev = NULL;
 			}
 		} else if(nowpos == last) {
 			last = last->prev;
-			last->next = NULL;
 			if(last == NULL) {
 				first = NULL;
+			} else {
+				last->next = NULL;
 			}
 		} else {
 			nowpos->prev->next = nowpos->next;
