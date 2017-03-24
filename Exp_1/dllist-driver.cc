@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "dllist.h"
 
+#define STU_NUM 3831
+
 void
 RandomInsertN(int N, DLList* list) {
 	void* item;
@@ -12,7 +14,7 @@ RandomInsertN(int N, DLList* list) {
 		srand(time(0) + i);
 		item = malloc(sizeof(int));
 		*(int*)item = i;
-		key = rand() % (2 * STU_NUM) - STU_NUM ;
+		key = rand() % (2 * STU_NUM) - STU_NUM;
 		list->SortedInsert(item, key);
 		printf("Inserted %d with key %d\n", i, key);
 	}
@@ -34,18 +36,18 @@ RemoveN(int N, DLList* list) {
 	}
 }
 
-int
-main(int argc, const char* argv[]) {
-	int N;
-	DLList* list = new DLList;
+// int
+// main(int argc, const char* argv[]) {
+// 	int N;
+// 	DLList* list = new DLList;
 
-	printf("To insert how many item(s)?\n");
-	scanf("%d", &N);
-	RandomInsertN(N, list);
+// 	printf("To insert how many item(s)?\n");
+// 	scanf("%d", &N);
+// 	RandomInsertN(N, list);
 
-	printf("To remove how many item(s)?\n");
-	scanf("%d", &N);
-	RemoveN(N, list);
+// 	printf("To remove how many item(s)?\n");
+// 	scanf("%d", &N);
+// 	RemoveN(N, list);
 
-	return 0;
-}
+// 	return 0;
+// }
