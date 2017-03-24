@@ -11,7 +11,7 @@
 
 #include "copyright.h"
 #include "system.h"
-#include "Dllist.h"
+#include "dllist.h"
 extern void genItem2List(DLList *dlist, int N);
 extern void delItem2List(DLList *dlist,int N); 
 

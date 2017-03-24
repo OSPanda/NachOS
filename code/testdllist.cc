@@ -3,7 +3,7 @@
 * test dllist
 */ 
 
-#include "threads/Dllist.h"
+#include "threads/dllist.h"
 #include <iostream>
 using namespace std;
 
