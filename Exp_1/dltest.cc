@@ -11,16 +11,16 @@ intNode(int i) {
     return place;
 }
 
-void 
-printDL(DLList *t) {
-    int *thing = NULL, *outk = intNode(0);
-    DLLElement *now = t->first;
+// void 
+// printDL(DLList *t) {
+//     int *thing = NULL, *outk = intNode(0);
+//     DLLElement *now = t->first;
 
-    while(now != NULL) {
-        printf("%d key %d\n", *(int*)(now->item), now->key);
-        now = now->next;
-    }
-}
+//     while(now != NULL) {
+//         printf("%d key %d\n", *(int*)(now->item), now->key);
+//         now = now->next;
+//     }
+// }
 
 
 void Impl_of_IsEmpty() {
