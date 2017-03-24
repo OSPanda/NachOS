@@ -55,10 +55,9 @@ void
 SimpleThread(int which)
 {
     int num;
-    
     for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", which, num);
-        currentThread->Yield();
+	   printf("*** thread %d looped %d times\n", which, num);
+       currentThread->Yield();
     }
 }
 
@@ -69,20 +68,23 @@ SimpleThread(int which)
 //----------------------------------------------------------------------
 
 void
-DllistTest(int  which)
+DllistTest1(int  which)
 {
-    printf(" in thread  %d \n", which);
+    printf("add item in thread %d\n", which);
     genItem2List(l,oprNum);
+    currentThread->Yield();
+    printf("delete item in thread %d\n", which);
     delItem2List(l,oprNum);
 }
 
 void
-Dllist2Test(int which)
+DllistTest2(int which)
 {
-    //printf(" in thread  %d \n", which);
-    //currentThread->Yield(); 
-    printf(" in thread  %d \n", which);
-    genItem2List(l,oprNum); 
+    for(int i = 0 ; i < oprNum ; i++){
+        printf("add %d item in thread %d\n", i+1 ,which);
+        genItem2List(l,1);
+    }
+    printf("delete item in thread %d\n", which);
     delItem2List(l,oprNum);
 }
 
@@ -91,34 +93,28 @@ void
 ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
-
-    Thread *t = new Thread("forked thread");
-
-    t->Fork(SimpleThread, 1);
-    SimpleThread(0);
+    
+    // Thread *t = new Thread("forked thread");
+    // t->Fork(SimpleThread, 1);
+    // SimpleThread(0);
 }
 
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
 //----------------------------------------------------------------------
-void 
-ThreadTest2()
-{
 
-    DEBUG('t', "Entering ThreadTest2\n");
-    for(int i=0 ;i< threadNum ;i++)
-    {
-        // printf("create one");
-        Thread * t = new Thread(getName(i+1));
-        t->Fork(DllistTest,i+1); 
+void 
+toDllistTest(VoidFunctionPtr func)
+{
+    DEBUG('t', "Entering  toDllistTest\n");
+    Thread *t;
+    for(int i=0 ;i < threadNum ;i++) {
+        t = new Thread(getName(i+1));
+        t->Fork(func,i+1); 
     }
-    // Thread * t1 = new Thread("forked thread");
-    // Thread * t2 = new Thread("forked thread");
-    // t1->Fork(DllistTest, 2); 
-    // t2->Fork(Dllist2Test, 3);
-   // DllistTest(0);
-}
+} 
+
 
 void
 ThreadTest()
@@ -126,15 +122,16 @@ ThreadTest()
     printf("%d \n",testnum); 
     switch (testnum) {
     case 1:
-	ThreadTest1();
-	break;
+       //switch out of function 
+        toDllistTest(DllistTest1);  
+        break;
     case 2:
-    //add test example 添加用例
-    ThreadTest2();  
-    break ;
+        // insert to  the empty list causing one item coving the other one  
+        toDllistTest(DllistTest2);
+        break;
     default:
-	printf("No test specified.\n");
-	break;
+    	printf("No test specified.\n");
+    	break;
     }
 }
 

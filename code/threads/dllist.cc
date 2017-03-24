@@ -3,7 +3,7 @@
 #include "system.h"
 
 using namespace std;
-
+extern int testnum; // introduce testnum to judeg the error type
 DLLElement::DLLElement(void *itemPtr, int sortKey)
 {
     key = sortKey;
@@ -84,8 +84,16 @@ void DLList::SortedInsert(void *item, int sortKey)
     DLLElement *newone = new DLLElement(item, sortKey);
 
     if(!IsEmpty()) {
-        first = newone;
-        last = newone;
+        if( testnum == 2){
+          currentThread->Yield();
+          first = newone;
+          currentThread->Yield();
+          last = newone;
+          currentThread->Yield();
+        }else{
+          first = newone;
+          last = newone;
+        }
     } else {
         DLLElement *now= first;
         while(now != NULL) {
