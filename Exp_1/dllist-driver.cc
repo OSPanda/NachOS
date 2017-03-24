@@ -23,7 +23,7 @@ RandomInsertN(int N, DLList* list) {
 void
 RemoveN(int N, DLList* list) {
 	void* item;
-	int*  key;
+	int*  key = (int*)malloc(sizeof(int));
 
 	for (int i = N; i > 0; i--) {
 		item = list->Remove(key);
