@@ -1,6 +1,6 @@
 #include "dllist.h"
 #include <iostream>
-// #include "system.h"
+#include "system.h"
 using namespace std;
 DLLElement::DLLElement( void *itemPtr, int sortKey )
 {
@@ -27,7 +27,6 @@ DLList::~DLList()
     }
 }
 
-//add to end of list
 void DLList::Append(void *item)
 {
    if(IsEmpty())
@@ -37,7 +36,7 @@ void DLList::Append(void *item)
        now->prev = last;
        last = now ;
    }else{
-       DLLElement * now = new DLLElement(item,0);//default is 0
+       DLLElement * now = new DLLElement(item,0);
        first = last =  now ;
    }
 
@@ -52,7 +51,7 @@ void DLList::Prepend(void *item)
         now->next = first;
         first = now ;
     }else{
-        DLLElement * now = new DLLElement(item , 0);//default is 0
+        DLLElement * now = new DLLElement(item , 0);
         first = last  = now;
     }
 }
@@ -66,21 +65,17 @@ void * DLList::Remove(int *keyPtr)
     else
     {
         DLLElement * d = first;
-        //currentThread->Yield(); 
         first = first->next;
         if(!first)
-        {
-            //currentThread->Yield();
+        { //只有一个节点的时候
             first = last = NULL;
         }else
         {
-            //currentThread->Yield();
             first->prev = NULL;
         }
-        //currentThread->Yield();// switch to other one
+
         d->next = NULL;
-        //currentThread->Yield();
-        //cout << "out: key->"<<d->key<< " value->"<< *(int *)d->item<<endl ;
+
         if( keyPtr != NULL){
           *keyPtr = d->key ;
         }
@@ -90,7 +85,6 @@ void * DLList::Remove(int *keyPtr)
 
 bool DLList::IsEmpty()
 {
-
     if(!this->first && !this->last)
     {
         return false;
@@ -104,67 +98,50 @@ bool DLList::IsEmpty()
 void DLList::SortedInsert(void *item , int sortKey)
 {
     DLLElement * newone  = new DLLElement(item,sortKey);
-    //currentThread->Yield();
+
     if(!IsEmpty())
-    {  // has no one before
-        //currentThread->Yield();
+    {  //只有一个节点
         first = newone;
-        //currentThread->Yield();
         last = newone;
-        //currentThread->Yield();
     }else{
-        // currentThread->Yield();
         DLLElement* now= first;
-        // insert after the now
+        // 寻找插入位置
         while(now != NULL)
         {
             if(now->key <=  sortKey)
             {
-                // insert to end of list
+
                 if(now->next == NULL||now->next->key >= sortKey)
-                {
+                {//到最后一个，或者找到比key值大的节点
                    break;
                 }
                 now = now->next;
             }else{
-                // insert to first one
+                // 插入第一个节点
                 now = NULL;
                 break;
             }
         }
-        // DEBUG('t', "find one to delete\n");
-        //currentThread->Yield();//find place to insert and swtich 
 
         if(now == NULL)
-        { // insert to the head of list
-            // DEBUG('t' , "next is newone\n");
-            first->prev = newone; // frist is  null
-            // DEBUG('t' , "next is newone"); 
-            //currentThread->Yield();
+        {// 插入 第一个节点
+            first->prev = newone;
             newone->next = first;
-            //currentThread->Yield();
             first = newone ;
         }
         else
         {
-           //currentThread->Yield();
             if(now == last)
-            {//insert to the end of list
-                last->next = newone;// 出错点
-                //currentThread->Yield(); 
+            {//插在最后面
+                last->next = newone;
                 newone->prev = last;
-                //currentThread->Yield();
                 last = newone ;
             }
             else
-            {
-                // DEBUG('t' , "next is newone");
+            {//一般情况插入
                 newone -> next = now->next;
-                //currentThread->Yield();
                 newone->next->prev = newone;
-                //currentThread->Yield();
                 now->next= newone;
-                //currentThread->Yield();
                 newone->prev = now;
             }
         }
@@ -180,15 +157,14 @@ void * DLList::SortedRemove(int sortKey)
        {
            now = now ->next;
        }
-        // find  one to delete
 
        if(now!=NULL)
        {
           if(now == first)
-          {
+          {//在第一个节点删除
                first = now->next;
                if(first == NULL)
-               {
+               {//只有一个节点
                   last = NULL ;
                }else{
                    first ->prev = NULL;
@@ -196,7 +172,7 @@ void * DLList::SortedRemove(int sortKey)
                now->next = NULL;
 
           }else if(now == last)
-          {
+          {// 在最后一个节点删除
               last = now ->prev;
               last->next = NULL;
               now ->prev = NULL;

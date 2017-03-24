@@ -290,7 +290,14 @@ dllist.o: ../threads/dllist.cc /usr/include/stdc-predef.h \
  /usr/include/c++/4.9/bits/locale_facets.tcc \
  /usr/include/c++/4.9/bits/basic_ios.tcc \
  /usr/include/c++/4.9/bits/ostream.tcc /usr/include/c++/4.9/istream \
- /usr/include/c++/4.9/bits/istream.tcc
+ /usr/include/c++/4.9/bits/istream.tcc ../threads/system.h \
+ ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
+ ../machine/sysdep.h ../threads/copyright.h /usr/include/libio.h \
+ /usr/include/_G_config.h /usr/include/bits/stdio_lim.h \
+ /usr/include/bits/sys_errlist.h /usr/include/string.h \
+ ../threads/thread.h ../threads/scheduler.h ../threads/list.h \
+ ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
+ ../machine/timer.h ../threads/utility.h
 dllist-driver.o: ../threads/dllist-driver.cc /usr/include/stdc-predef.h \
  ../threads/dllist.h /usr/include/c++/4.9/iostream \
  /usr/include/x86_64-linux-gnu/c++/4.9/32/bits/c++config.h \

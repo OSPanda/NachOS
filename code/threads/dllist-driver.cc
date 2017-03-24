@@ -9,7 +9,6 @@ void genItem2List(DLList *dlist, int N)
     int* item , num;
     static int random=0; 
     random ++;
-    //srand(random);
     srand(unsigned(time(0))+random);
     for(int i=0;i<N;i++)
     {
@@ -17,9 +16,7 @@ void genItem2List(DLList *dlist, int N)
         *item = rand()%200;
         num = rand()%(N*10);
         cout << "in : key->" << num << " item->" << *item << endl;
-        //int * item = new int ;
         dlist->SortedInsert((void *)item, num);
-        //dlist->SortedInsert((void *)&(*item = rand()%100),rand()%(N*10))
     }
 }
 
