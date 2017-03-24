@@ -11,6 +11,7 @@ public:
     int key; // priority, for a sorted list
     void *item; // pointer to item on the list
 };
+
 class DLList {
 public:
     DLList(); // initialize the list
@@ -29,8 +30,5 @@ private:
     DLLElement *first; // head of the list, NULL if empty
     DLLElement *last; // last element of the list, NULL if empty
 };
-
-
-
 
 #endif // DLLIST_H_INCLUDED
