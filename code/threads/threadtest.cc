@@ -139,6 +139,37 @@ DllistTest5(int which){
     printf("delete item in thread %d\n", which);
     delItem2List(l, oprNum);
 }
+
+void
+DllistTest6(int which){
+    if( which%2 == 1){
+        canYield = false;
+        printf("add NO.1 item in thread %d\n", which);
+        genItem2List(l,1);
+        currentThread->Yield();
+        for(int i = 1 ; i < oprNum ; i++){
+            printf("add NO.%d item in thread %d\n", i+1 ,which);
+            genItem2List(l,1);
+            // currentThread->Yield();
+        }
+        printf("delete item in thread %d\n", which);
+        delItem2List(l,oprNum);
+    }else{
+        printf("add NO.1 item in thread %d\n", which);
+        genItem2List(l,1);
+        canYield = true;
+        currentThread->Yield();
+        for(int i = 1 ; i < oprNum ; i++){
+            printf("add NO.%d item in thread %d\n", i+1 ,which);
+            genItem2List(l,1);
+            // currentThread->Yield();
+        }
+        printf("delete item in thread %d\n", which);
+        delItem2List(l,oprNum);
+    }
+    
+}
+
 void
 ThreadTest1()
 {
@@ -180,11 +211,17 @@ ThreadTest()
     case 3: //delete item  at  one time
         toDllistTest(DllistTest3);
         break;
-    case 4: // segmentation fault , one is in the add the other is in delete  
+    case 4:
+        // segmentation fault , one is in the add the other is in delete  
         toDllistTest(DllistTest4);
         break;
-    case 5: //
+    case 5:
+        //chain scission ,sometimes it will happen 
         toDllistTest(DllistTest5);
+        break;
+    case 6:
+        //　disorder output from insert items
+        toDllistTest(DllistTest6);
         break;
     default:
     	printf("No test specified.\n");

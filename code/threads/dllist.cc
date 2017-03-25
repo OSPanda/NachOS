@@ -115,11 +115,17 @@ void DLList::SortedInsert(void *item, int sortKey)
         }
     } else {
 
-        if(testnum == 4 && canYield){
+        if((testnum == 4 && canYield)){
             currentThread->Yield();
         }
 
         DLLElement *now= first;
+
+        if( testnum == 6 && canYield){
+            currentThread->Yield();
+            DEBUG('t',"location 1 to insert key\n",newone->key);
+        }
+
         while(now != NULL) {
             if(now->key <= sortKey) {
                 if(now->next == NULL || now->next->key >= sortKey) {
@@ -132,15 +138,31 @@ void DLList::SortedInsert(void *item, int sortKey)
             }
         }
 
+        if( testnum == 6 && canYield){
+            currentThread->Yield();
+            DEBUG('t',"location 2 to insert key\n",newone->key);
+        }
+
         if(now == NULL) {
-            if(testnum == 4){
-                DEBUG('t'," now is null\n");
-                assert(first != NULL);
-            }
-            first->prev = newone;
-            newone->next = first;
-            first = newone;
+              if(testnum == 4){
+                  DEBUG('t',"now is null\n");
+                  assert(first != NULL);
+              }
+              if( testnum == 6 && canYield){
+                  currentThread->Yield();
+                  DEBUG('t',"location 3 to insert key\n",newone->key);
+              }
+
+              first->prev = newone;
+              newone->next = first;
+              first = newone;
         } else {
+
+            if( testnum == 6 && canYield){
+                currentThread->Yield();
+                DEBUG('t',"location 4 to insert key\n",newone->key);
+            }
+
             if(now == last) {
                 last->next = newone;
                 newone->prev = last;
@@ -150,6 +172,7 @@ void DLList::SortedInsert(void *item, int sortKey)
                     currentThread->Yield();
                     control++;
                 }
+
                 newone->next = now->next;
                 newone->next->prev = newone;
                 if(testnum == 5 && canYield && control%2 == 1){
@@ -160,6 +183,9 @@ void DLList::SortedInsert(void *item, int sortKey)
                 newone->prev = now;
             }
         }
+        if(testnum == 6 && canYield){
+            currentThread->Yield();
+        } 
     }
 }
 
