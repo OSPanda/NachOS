@@ -5,6 +5,7 @@
 
 using namespace std;
 extern int testnum; // introduce testnum to judeg the error type
+extern int canYield; 
 DLLElement::DLLElement(void *itemPtr, int sortKey)
 {
     key = sortKey;
@@ -66,6 +67,9 @@ void * DLList::Remove(int *keyPtr)
         }
         first = first->next;
         if(!first) {
+            if(testnum == 4 && canYield){
+                currentThread->Yield();
+            }
             first = last = NULL;
         } else {
             if(testnum == 3){
@@ -110,6 +114,11 @@ void DLList::SortedInsert(void *item, int sortKey)
           last = newone;
         }
     } else {
+
+        if(testnum == 4 && canYield){
+            currentThread->Yield();
+        }
+
         DLLElement *now= first;
         while(now != NULL) {
             if(now->key <= sortKey) {
@@ -124,6 +133,10 @@ void DLList::SortedInsert(void *item, int sortKey)
         }
 
         if(now == NULL) {
+            if(testnum == 4){
+                DEBUG('t'," now is null\n");
+                assert(first != NULL);
+            }
             first->prev = newone;
             newone->next = first;
             first = newone;

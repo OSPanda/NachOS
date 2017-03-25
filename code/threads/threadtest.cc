@@ -20,6 +20,7 @@ extern void delItem2List(DLList *dlist,int N);
 int testnum = 1;
 int threadNum=1;
 int oprNum=1;
+bool canYield=false;
 DLList* l = new DLList();// share data structure
 
 //----------------------------------------------------------------------
@@ -102,7 +103,24 @@ DllistTest3(int which)
     }
 }
 
+void 
+DllistTest4(int which){
+    // segmentation fault　one is in the add the other is in delete 
+    printf("add item in thread %d\n", which);   
+    if(which%2 == 1){
+        canYield = false; 
+        genItem2List(l, oprNum);
+        for(int i = 0; i < oprNum-1; i++){
+            delItem2List(l, 1);
+        }
+        canYield = true;
+        delItem2List(l, 1);
+    }else{
+        genItem2List(l, oprNum);
+        delItem2List(l, oprNum);
+    }
 
+}
 
 void
 ThreadTest1()
@@ -145,7 +163,10 @@ ThreadTest()
         toDllistTest(DllistTest2);
         break;
     case 3:
+        //delete item  at  one time
         toDllistTest(DllistTest3);
+    case 4:
+        toDllistTest(DllistTest4);
     default:
     	printf("No test specified.\n");
     	break;
