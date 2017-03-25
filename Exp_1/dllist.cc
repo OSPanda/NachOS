@@ -72,7 +72,7 @@ void * DLList::Remove(int *keyPtr)
 
         // if testnum is 3, call Yield() to cause a thread switch
         // all threads remove the first element at the same time
-        if(testnum == 3){
+        if(testnum == 3) {
           currentThread->Yield();
         }
 
@@ -81,13 +81,13 @@ void * DLList::Remove(int *keyPtr)
         if(!first) {  // if empty after removing first element
         	// if testnum is 4, call Yield() to cause a thread switch
         	// segmentation fault , one is adding but the other is deleting 
-            if(testnum == 4 && canYield){
+            if(testnum == 4 && canYield) {
                 currentThread->Yield();
             }
             first = last = NULL;
         } else {  // if not empty
-            if(testnum == 3){
-                DEBUG('t' , "type 3 , 2nd switch\n");  // debug and print the information
+            if(testnum == 3) {
+                DEBUG('t', "type 3, 2nd switch\n");  // debug and print the information
                 currentThread->Yield();
                 assert(first != NULL);
             }
@@ -96,8 +96,8 @@ void * DLList::Remove(int *keyPtr)
         }
 
         d->next = NULL;
-        if(testnum == 3){
-          DEBUG('t' , "type 3 , 3rd switch\n"); 
+        if(testnum == 3) {
+          DEBUG('t', "type 3, 3rd switch\n"); 
           currentThread->Yield();
         }
         if(keyPtr != NULL) {
@@ -122,28 +122,27 @@ void DLList::SortedInsert(void *item, int sortKey)
     	// if testnum is 2, call Yield() to cause a thread switch
         // all threads judge the list to be empty
         // insert to the empty list and switching thread cause one item to cover the other one
-        if( testnum == 2){
+        if(testnum == 2) {
           currentThread->Yield();
           first = newone;
           currentThread->Yield();
           last = newone;
           currentThread->Yield();
-        }else{  // insert without threads switch
+        } else {  // insert without threads switch
           first = newone;
           last = newone;
         }
     } else { // if not empty
-
-        if((testnum == 4 && canYield)){
+        if(testnum == 4 && canYield) {
             currentThread->Yield();
         }
 
         DLLElement *now= first;
         // if testnum is 6, call Yield() to cause a thread switch
         // insert items but in disorder
-        if( testnum == 6 && canYield){
+        if(testnum == 6 && canYield) {
             currentThread->Yield();
-            DEBUG('t',"location 1 to insert key\n",newone->key);
+            DEBUG('t', "location 1 to insert key\n", newone->key);
         }
 		
 		// sorted by key
@@ -159,29 +158,28 @@ void DLList::SortedInsert(void *item, int sortKey)
             }
         }
 
-        if( testnum == 6 && canYield){
+        if(testnum == 6 && canYield) {
             currentThread->Yield();
-            DEBUG('t',"location 2 to insert key\n",newone->key);
+            DEBUG('t', "location 2 to insert key\n", newone->key);
         }
 
         if(now == NULL) {
-              if(testnum == 4){
-                  DEBUG('t',"now is null\n");
+              if(testnum == 4) {
+                  DEBUG('t', "now is null\n");
                   assert(first != NULL);
               }
-              if( testnum == 6 && canYield){
+              if(testnum == 6 && canYield) {
                   currentThread->Yield();
-                  DEBUG('t',"location 3 to insert key\n",newone->key);
+                  DEBUG('t', "location 3 to insert key\n", newone->key);
               }
 
               first->prev = newone;
               newone->next = first;
               first = newone;
         } else {
-
-            if( testnum == 6 && canYield){
+            if(testnum == 6 && canYield) {
                 currentThread->Yield();
-                DEBUG('t',"location 4 to insert key\n",newone->key);
+                DEBUG('t', "location 4 to insert key\n", newone->key);
             }
 
             if(now == last) {
@@ -191,14 +189,14 @@ void DLList::SortedInsert(void *item, int sortKey)
             } else {
             	// if testnum is 5, call Yield() to cause a thread switch
             	// chain scission
-                if(testnum == 5 && canYield && control%2 == 0){
+                if(testnum == 5 && canYield && control % 2 == 0) {
                     currentThread->Yield();
                     control++;
                 }
 
                 newone->next = now->next;
                 newone->next->prev = newone;
-                if(testnum == 5 && canYield && control%2 == 1){
+                if(testnum == 5 && canYield && control % 2 == 1) {
                     currentThread->Yield();
                     control++;
                 }
@@ -206,14 +204,14 @@ void DLList::SortedInsert(void *item, int sortKey)
                 newone->prev = now;
             }
         }
-        if(testnum == 6 && canYield){
+        if(testnum == 6 && canYield) {
             currentThread->Yield();
         } 
     }
 }
 
 // remove first item with key == sortKey
-void * DLList::SortedRemove(int sortKey)
+void* DLList::SortedRemove(int sortKey)
 {
     if(IsEmpty()) {  // if list is not empty
        DLLElement *now = first;
