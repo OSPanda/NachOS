@@ -100,8 +100,8 @@ bool DLList::IsEmpty()
 
 void DLList::SortedInsert(void *item, int sortKey)
 {
+    static int control = 0;// also control the switch 
     DLLElement *newone = new DLLElement(item, sortKey);
-
     if(!IsEmpty()) {
         if( testnum == 2){
           currentThread->Yield();
@@ -146,8 +146,16 @@ void DLList::SortedInsert(void *item, int sortKey)
                 newone->prev = last;
                 last = newone;
             } else {
+                if(testnum == 5 && canYield && control%2 == 0){
+                    currentThread->Yield();
+                    control++;
+                }
                 newone->next = now->next;
                 newone->next->prev = newone;
+                if(testnum == 5 && canYield && control%2 == 1){
+                    currentThread->Yield();
+                    control++;
+                }
                 now->next = newone;
                 newone->prev = now;
             }

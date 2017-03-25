@@ -105,23 +105,40 @@ DllistTest3(int which)
 
 void 
 DllistTest4(int which){
-    // segmentation fault　one is in the add the other is in delete 
-    printf("add item in thread %d\n", which);   
+    // segmentation fault　one is in the add the other is in delete  
     if(which%2 == 1){
-        canYield = false; 
+        canYield = false;
+        printf("add item in thread %d\n", which); 
         genItem2List(l, oprNum);
+        printf("delete item in thread %d\n", which);
         for(int i = 0; i < oprNum-1; i++){
             delItem2List(l, 1);
         }
         canYield = true;
         delItem2List(l, 1);
     }else{
+        printf("add item in thread %d\n", which);
         genItem2List(l, oprNum);
+        printf("delete item in thread %d\n", which);
         delItem2List(l, oprNum);
     }
 
 }
 
+void 
+DllistTest5(int which){
+    canYield = false;
+    printf("add NO.1 item in thread %d\n",which);
+    genItem2List(l, 1);
+    currentThread->Yield();
+    canYield = true;
+    for(int i = 0; i < oprNum-1; i++){
+        printf("add NO.%d item in thread %d\n",i+2,which);
+        genItem2List(l, 1);
+    }
+    printf("delete item in thread %d\n", which);
+    delItem2List(l, oprNum);
+}
 void
 ThreadTest1()
 {
@@ -166,7 +183,10 @@ ThreadTest()
         //delete item  at  one time
         toDllistTest(DllistTest3);
     case 4:
+        // segmentation fault , one is in the add the other is in delete  
         toDllistTest(DllistTest4);
+    case 5:
+        toDllistTest(DllistTest5);
     default:
     	printf("No test specified.\n");
     	break;
