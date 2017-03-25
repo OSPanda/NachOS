@@ -1,6 +1,7 @@
 #include "dllist.h"
 #include <iostream>
 #include "system.h"
+#include <assert.h>
 
 using namespace std;
 extern int testnum; // introduce testnum to judeg the error type
@@ -59,14 +60,28 @@ void * DLList::Remove(int *keyPtr)
         return NULL;
     } else {
         DLLElement *d = first;
+
+        if(testnum == 3){
+          currentThread->Yield();
+        }
         first = first->next;
         if(!first) {
             first = last = NULL;
         } else {
+            if(testnum == 3){
+                DEBUG('t' , "type 3 , 2nd switch\n"); 
+                currentThread->Yield(); 
+                assert(first != NULL);
+            }
+            
             first->prev = NULL;
         }
 
         d->next = NULL;
+        if(testnum == 3){
+          DEBUG('t' , "type 3 , 3rd switch\n"); 
+          currentThread->Yield();
+        }
         if(keyPtr != NULL) {
           *keyPtr = d->key;
         }

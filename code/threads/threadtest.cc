@@ -12,6 +12,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "dllist.h"
+#include <ctime>
 extern void genItem2List(DLList *dlist, int N);
 extern void delItem2List(DLList *dlist,int N); 
 
@@ -81,12 +82,26 @@ void
 DllistTest2(int which)
 {
     for(int i = 0 ; i < oprNum ; i++){
-        printf("add %d item in thread %d\n", i+1 ,which);
+        printf("add NO.%d item in thread %d\n", i+1 ,which);
         genItem2List(l,1);
     }
     printf("delete item in thread %d\n", which);
     delItem2List(l,oprNum);
 }
+
+
+void
+DllistTest3(int which)
+{ // segmentation fault  delete  one element at one time
+    printf("add item in thread %d\n", which);
+    genItem2List(l,oprNum);
+    currentThread->Yield();
+    for(int i = 0;i < oprNum ;i++){
+        printf("delete NO.%d item in thread %d\n",i+1 ,which);
+        delItem2List(l,1); 
+    }
+}
+
 
 
 void
@@ -129,6 +144,8 @@ ThreadTest()
         // insert to  the empty list causing one item coving the other one  
         toDllistTest(DllistTest2);
         break;
+    case 3:
+        toDllistTest(DllistTest3);
     default:
     	printf("No test specified.\n");
     	break;

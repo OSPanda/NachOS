@@ -140,7 +140,11 @@ threadtest.o: ../threads/threadtest.cc /usr/include/stdc-predef.h \
  /usr/include/xlocale.h ../threads/thread.h ../threads/scheduler.h \
  ../threads/list.h ../machine/interrupt.h ../threads/list.h \
  ../machine/stats.h ../machine/timer.h ../threads/utility.h \
- ../threads/dllist.h
+ ../threads/dllist.h /usr/include/c++/4.9/ctime \
+ /usr/include/x86_64-linux-gnu/c++/4.9/32/bits/c++config.h \
+ /usr/include/x86_64-linux-gnu/c++/4.9/32/bits/os_defines.h \
+ /usr/include/x86_64-linux-gnu/c++/4.9/32/bits/cpu_defines.h \
+ /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/timex.h
 interrupt.o: ../machine/interrupt.cc /usr/include/stdc-predef.h \
  ../threads/copyright.h ../machine/interrupt.h ../threads/list.h \
  ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
