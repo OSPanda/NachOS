@@ -171,22 +171,21 @@ ThreadTest()
 {
     printf("%d \n",testnum); 
     switch (testnum) {
-    case 1:
-       //switch out of function 
+    case 1: //switch out of function 
         toDllistTest(DllistTest1);  
         break;
-    case 2:
-        // insert to  the empty list causing one item coving the other one  
+    case 2: // insert to  the empty list causing one item coving the other one  
         toDllistTest(DllistTest2);
         break;
-    case 3:
-        //delete item  at  one time
+    case 3: //delete item  at  one time
         toDllistTest(DllistTest3);
-    case 4:
-        // segmentation fault , one is in the add the other is in delete  
+        break;
+    case 4: // segmentation fault , one is in the add the other is in delete  
         toDllistTest(DllistTest4);
-    case 5:
+        break;
+    case 5: //
         toDllistTest(DllistTest5);
+        break;
     default:
     	printf("No test specified.\n");
     	break;
