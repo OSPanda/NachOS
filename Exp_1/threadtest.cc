@@ -21,7 +21,7 @@ int testnum = 1; // set by main(), telling which test to enter
 int threadNum = 1; // set by main(), telling number of threads
 int oprNum = 1; // set by main(), telling number of elements
 
-bool canYield = false; // controlling Yield() for different threadss
+bool canYield = false; // controlling Yield() for different threads
 DLList *l = new DLList(); // shared double link
 
 char*

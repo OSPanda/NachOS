@@ -38,7 +38,7 @@ void delItemFromList(DLList *list, int n)
             if(item != NULL) {
                 cout << "Remove: key->"<< *out << " item->" << *(int *)item << endl;
             } else {
-                cout << "Remove: key->"<< *out << " item->NULL" << endl ;
+                cout << "Remove: key->"<< *out << " item->NULL" << endl;
             }
         } else {
             // return when list had been emptied

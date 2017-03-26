@@ -65,6 +65,7 @@ void DLList::Prepend(void *item)
 // set *keyPtr to key of the removed item
 void * DLList::Remove(int *keyPtr)
 {
+    void* thing;
     if(!IsEmpty()) {  // if empty, return NULL
         return NULL;
     } else {  // if not empty
@@ -103,7 +104,9 @@ void * DLList::Remove(int *keyPtr)
         if(keyPtr != NULL) {
           *keyPtr = d->key;  // set *keyPtr to key of the removed item
         }
-        return d->item;  // return item 
+        thing = d->item;
+        delete d; // garbage collect
+        return thing;  // return item 
     }
 }
 
@@ -213,6 +216,7 @@ void DLList::SortedInsert(void *item, int sortKey)
 // remove first item with key == sortKey
 void* DLList::SortedRemove(int sortKey)
 {
+    void* thing;
     if(IsEmpty()) {  // if list is not empty
        DLLElement *now = first;
        while(now != NULL && now->key != sortKey) {  // find out the element with key == sortKey
@@ -235,7 +239,9 @@ void* DLList::SortedRemove(int sortKey)
              now->prev->next = now->next;
              now->next->prev = now->prev;
           }
-          return now->item;
+          thing = now->item;
+          delete now;
+          return thing;
        }
     }
     return NULL;  // return NULL if no such item exists
