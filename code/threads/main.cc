@@ -52,11 +52,12 @@
 
 #include "utility.h"
 #include "system.h"
-//#include "hello.h"
-#include "dllist.h"
 
 #ifdef THREADS
-extern int testnum, threadnum, t, n;  //yield_pos;
+// external arguments defined in threadtest.cc
+extern int testnum;
+extern int threadNum;
+extern int oprNum;
 #endif
 
 // External functions used by this file
@@ -65,9 +66,6 @@ extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
-
-// extern void Insert(int t, int n, DLList *dllist);
-// extern void Remove(int t, int n, DLList *dllist);
 
 //----------------------------------------------------------------------
 // main
@@ -100,32 +98,23 @@ main(int argc, char **argv)
         testnum = atoi(argv[1]);
         argCount++;
         break;
-    //------------------------
-      case 't':
-      	threadnum = atoi(argv[1]);
-      	argCount++;
-      	break;
-
+      case 't': 	
+        threadNum = atoi(argv[1]);
+        argCount++; 
+        break; 
       case 'n':
-      	n = atoi(argv[1]);
-      	argCount++;
-      	break;
-
-      // case 'y':
-      // 	yield_pos = atoi(argv[1]);
-      // 	argCount++;
-      // 	break;
-    //------------------------
+ 		oprNum = atoi(argv[1]); 
+ 		argCount++;
+        break;
       default:
         testnum = 1;
+        oprNum = 2 ;
+        threadNum = 2;
         break;
       }
     }
-
-//    hello();
     ThreadTest();
 #endif
-
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
         if (!strcmp(*argv, "-z"))               // print copyright
