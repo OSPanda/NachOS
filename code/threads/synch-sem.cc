@@ -22,9 +22,8 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch.h"
+#include "synch-sem.h"
 #include "system.h"
-#include <assert.h>
 
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
@@ -72,7 +71,7 @@ Semaphore::P()
 	currentThread->Sleep();
     } 
     value--; 					// semaphore available, 
-						// consume its value
+						// copy_n()sume its value
     
     (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
 }
@@ -103,96 +102,65 @@ Semaphore::V()
 // the test case in the network assignment won't work!
 Lock::Lock(char* debugName)
 {
-    name = debugName;
-    queue = new List;
-    value = true;
+    sem = new Semaphore(debugName , 1);
+    currentThread = NULL;
 }
 
 Lock::~Lock() 
 {
-    delete queue;
+    delete sem;
 }
 void Lock::Acquire()
 {   
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
-    while( value == false){
-        // go to sleep   does not guarantee that a thread awakened in V will get a chance
-        // to run before another thread calls P 
-        queue->Append((void *)currentThread);   // so go to sleep
-        currentThread->Sleep();
-    }
-    value = false;
-    currentHeldLockThread = currentThread; 
-    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
+    sem->P();
+    currentHeldLockThread = currentThread;
 }
 void Lock::Release()
 {
-    Thread *thread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    // if queue is not empty release all blocked one
-    if(!queue->IsEmpty()){//wake up one thread
-        thread = (Thread *)queue->Remove();
-        if (thread != NULL)    // make thread ready
-            scheduler->ReadyToRun(thread);
-    }
-    value = true;
-    
-    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
+    sem->V();
 }
 
-bool Lock::isHeldByCurrentThread()
+bool isHeldByCurrentThread()
 {
-    return (currentThread == currentHeldLockThread)? true : false;
+    return currentThread == currentHeldLockThread? true:false;
 }
 
 Condition::Condition(char* debugName)
 { 
-    name =  debugName;
-    queue = new List;
+    sem = new Semaphore(debugName , 0);
+    currentThread = NULL; 
+    numWaiting = 0;
 }
 Condition::~Condition()
 {
-    delete queue;
+    delete sem;
 }
 void Condition::Wait(Lock* conditionLock)
 { 
     assert(conditionLock->isHeldByCurrentThread());
     
     // still need off the interupt
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    queue->Append((void *)currentThread);
     conditionLock->Release();
-    currentThread->Sleep();
-    conditionLock->Acquire();// restart to require lock 
-    (void) interrupt->SetLevel(oldLevel);
+    numWaiting++; 
+    sem->P();
+    numWaiting--;
+    conditionLock->Acquire();// restart to require lock ,to rejudge the condition is satisfilied
 
 }
 void Condition::Signal(Lock* conditionLock)
 {
-    Thread *thread;
-    assert(conditionLock->isHeldByCurrentThread());
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    
-    if(!queue->IsEmpty()){
-        thread = (Thread *)queue->Remove();
-        if (thread != NULL)    // make thread ready
-            scheduler->ReadyToRun(thread);
+   assert(conditionLock->isHeldByCurrentThread());
+    //不累加 保护措施
+    if(numWaiting != 0){
+        sem->V();
+        numWaiting--; 
     }
-    
-    (void) interrupt->SetLevel(oldLevel);
 }
 void Condition::Broadcast(Lock* conditionLock)
 {
     Thread *thread;
     assert(conditionLock->isHeldByCurrentThread());
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-
-    // wake up all the thread
-    while(!queue->IsEmpty()){
-        thread = (Thread *)queue->Remove();
-        if (thread != NULL)    // make thread ready
-            scheduler->ReadyToRun(thread);
+    for(int i = 0 ;i < numWaiting ;i++){
+        sem->V();
     }
-
-    (void) interrupt->SetLevel(oldLevel);
 }

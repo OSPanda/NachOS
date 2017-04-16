@@ -13,6 +13,10 @@
 #include "system.h"
 #include "dllist.h"
 #include <ctime>
+#include "synch.h"
+#include "Table.h"
+#include "BoundedBuffer.h"
+
 extern void genItem2List(DLList *dlist, int N);
 extern void delItem2List(DLList *dlist,int N); 
 
@@ -22,7 +26,11 @@ int threadNum=1;
 int oprNum=1;
 bool canYield=false;
 DLList* l = new DLList();// share data structure
-
+Lock *dlistlock = new Lock("dllist lock");
+Lock *outListLock =  new Lock("out of dlist define");
+Condition *dlistEmpty = new Condition("dlist empty cond");
+Table *table = new Table(10);
+BoundedBuffer * buffer = new BoundedBuffer(20);
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -72,11 +80,14 @@ SimpleThread(int which)
 void
 DllistTest1(int  which)
 {
+    outListLock->Acquire();
     printf("add item in thread %d\n", which);
     genItem2List(l,oprNum);
     currentThread->Yield();
     printf("delete item in thread %d\n", which);
     delItem2List(l,oprNum);
+    outListLock->Release();
+
 }
 
 void
@@ -171,6 +182,22 @@ DllistTest6(int which){
 }
 
 void
+TestTable(int which)
+{
+    static int seed = 0;
+    seed++;
+     
+    if(which % 2){
+        table->
+
+    }else{
+
+    }
+
+}
+
+
+void
 ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
@@ -223,9 +250,25 @@ ThreadTest()
         //　disorder output from insert items
         toDllistTest(DllistTest6);
         break;
+    case 7:
+        // to test Table.h file
+        toDllistTest(TestTable);
+        break;
+    case 8:
+        // to test BoundedBuffer.h
+        toDllistTest(TestBoundedBuffer);
+
+        break;
     default:
     	printf("No test specified.\n");
     	break;
     }
+
+    delete l；
+    delete　dlistlock;
+    delete　outListLock;
+    delete　dlistEmpty;
+    delete　table;
+    delete　buffer;
 }
 

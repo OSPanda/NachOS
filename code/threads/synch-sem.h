@@ -78,10 +78,9 @@ class Lock {
 					// Condition variable ops below.
 
   private:
-    char* name;				// for debugging
-    bool value;             // if free value is true ,or value is false
-    List* queue;
-    Thread *currentHeldLockThread;  // current that hold lock 
+
+    Semaphore *sem;
+    Thread * currentHeldLockThread;  // current that hold lock 
     // plus some other stuff you'll need to define
 };
 
@@ -133,8 +132,9 @@ class Condition {
 					// these operations
 
   private:
-    char* name;
-    List* queue; // store wait thread
+    Semaphore *sem;
+    int numWaiting;
+    Thread * currentHeldLockThread;  // current that hold lock 
     // plus some other stuff you'll need to define
 };
 #endif // SYNCH_H
