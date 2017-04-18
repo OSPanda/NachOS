@@ -73,7 +73,6 @@ Semaphore::P()
     } 
     value--; 					// semaphore available, 
 						// consume its value
-    
     (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
 }
 
@@ -178,7 +177,6 @@ void Condition::Signal(Lock* conditionLock)
         if (thread != NULL)    // make thread ready
             scheduler->ReadyToRun(thread);
     }
-    
     (void) interrupt->SetLevel(oldLevel);
 }
 void Condition::Broadcast(Lock* conditionLock)
@@ -193,6 +191,5 @@ void Condition::Broadcast(Lock* conditionLock)
         if (thread != NULL)    // make thread ready
             scheduler->ReadyToRun(thread);
     }
-
     (void) interrupt->SetLevel(oldLevel);
 }

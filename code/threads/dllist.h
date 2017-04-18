@@ -1,6 +1,5 @@
 #ifndef DLLIST_H_INCLUDED
 #define DLLIST_H_INCLUDED
-
 class DLLElement {
 public:
     DLLElement( void *itemPtr, int sortKey ); // initialize a list element

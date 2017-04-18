@@ -1,6 +1,7 @@
-
 #include "BoundedBuffer.h"
-
+#include "synch.h"
+#include "system.h"
+extern int testnum; //for test buffer
 BoundedBuffer::BoundedBuffer(int maxsize)
 {
 	IntoBuffer  = new Lock("into buffer lock");	
@@ -14,6 +15,7 @@ BoundedBuffer::BoundedBuffer(int maxsize)
 	maxSize = maxsize;
 	readFrom = 0; // read position 
 	writeTo = 0; // write position 
+	hasCount = 0;
 }
 
 BoundedBuffer::~BoundedBuffer()
@@ -31,7 +33,7 @@ BoundedBuffer::Read(void *data, int size)
 {
 	int *readData = (int *)data;
 	while(size!=0){
-		// learn from others on net
+		// learn from others on net but he's paper still have many mistakes
 		// condition for buffer empty
 		con_empty->Acquire();
 		while(hasCount == 0){
@@ -39,11 +41,23 @@ BoundedBuffer::Read(void *data, int size)
 		}
 		IntoBuffer->Acquire();
 		*readData++ = buffer[readFrom]; 
+		// printf("get %d from buffer\n", buffer[readFrom]);
 		readFrom = (readFrom + 1) % maxSize; 
 		hasCount--;
 		IntoBuffer->Release();
+
+		// end of condition 
+		con_empty->Release();
+
+		// to broadcast other blocked writers 
+		con_full->Acquire();//must get lock
 		not_full->Broadcast(con_full); 
+		con_full->Release();//must release lock
+
 		size--;
+		if(size % 3 == 1 && testnum == 8){
+			currentThread->Yield();
+		}
 	}
 }
 
@@ -60,11 +74,22 @@ BoundedBuffer::Write(void *data, int size)
 		}
 		IntoBuffer->Acquire();
 		buffer[writeTo] = *writeData++;
+		// printf("put %d to buffer\n",buffer[writeTo]);
 		writeTo = (writeTo + 1) % maxSize;
 		hasCount++;
 		IntoBuffer->Release();
+
+		con_full->Release();// key pointe: must release lock
+		
+		// to broadcast other readers
+		con_empty->Acquire();
 		not_empty->Broadcast(con_empty);
+		con_empty->Release();
+		
 		size--;
+		if(size % 2 == 1 && testnum == 8){
+			currentThread->Yield();
+		}
 	}
 }
 

@@ -22,8 +22,9 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch-sem.h"
+#include "synch.h"
 #include "system.h"
+#include <assert.h>
 
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
@@ -102,6 +103,7 @@ Semaphore::V()
 // the test case in the network assignment won't work!
 Lock::Lock(char* debugName)
 {
+    name = debugName; 
     sem = new Semaphore(debugName , 1);
     currentThread = NULL;
 }
@@ -118,15 +120,17 @@ void Lock::Acquire()
 void Lock::Release()
 {
     sem->V();
+    
 }
 
-bool isHeldByCurrentThread()
+bool Lock::isHeldByCurrentThread()
 {
     return currentThread == currentHeldLockThread? true:false;
 }
 
 Condition::Condition(char* debugName)
 { 
+    name = debugName;
     sem = new Semaphore(debugName , 0);
     currentThread = NULL; 
     numWaiting = 0;
@@ -151,16 +155,15 @@ void Condition::Signal(Lock* conditionLock)
 {
    assert(conditionLock->isHeldByCurrentThread());
     //不累加 保护措施
-    if(numWaiting != 0){
+    if(numWaiting > 0){
         sem->V();
         numWaiting--; 
     }
 }
 void Condition::Broadcast(Lock* conditionLock)
 {
-    Thread *thread;
     assert(conditionLock->isHeldByCurrentThread());
-    for(int i = 0 ;i < numWaiting ;i++){
+    for(int i = 0; i < numWaiting; i++){
         sem->V();
     }
 }

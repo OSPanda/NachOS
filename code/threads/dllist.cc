@@ -7,7 +7,7 @@
 using namespace std;
 extern int testnum; // introduce testnum to judeg the error type
 extern int canYield; 
-extern Lock *dlistlock;
+extern Lock *dlistLock;
 // extern Condition *dlistEmpty;　// to judge list is empty
 DLLElement::DLLElement(void *itemPtr, int sortKey)
 {
@@ -34,7 +34,7 @@ DLList::~DLList()
 
 void DLList::Append(void *item)
 {
-   dlistlock->Acquire();
+   dlistLock->Acquire();
    if(IsEmpty()) {
        DLLElement *now = new DLLElement(item, last->key + 1);
        last->next = now;
@@ -44,12 +44,12 @@ void DLList::Append(void *item)
        DLLElement *now = new DLLElement(item, 0);
        first = last = now;
    }
-   dlistlock->Release();
+   dlistLock->Release();
 }
 
 void DLList::Prepend(void *item)
 {   
-    dlistlock->Acquire();
+    dlistLock->Acquire();
     if(IsEmpty()) {
         DLLElement *now = new DLLElement(item, first->key - 1);
         first->prev = now;
@@ -59,14 +59,14 @@ void DLList::Prepend(void *item)
         DLLElement *now = new DLLElement(item, 0);
         first = last = now;
     }
-    dlistlock->Release();
+    dlistLock->Release();
 }
 
 void * DLList::Remove(int *keyPtr)
 {
-    dlistlock->Acquire();
+    dlistLock->Acquire();
     if(!IsEmpty()) {
-        dlistlock->Release();
+        dlistLock->Release();
         return NULL;
     } else {
         DLLElement *d = first;
@@ -98,7 +98,7 @@ void * DLList::Remove(int *keyPtr)
         if(keyPtr != NULL) {
           *keyPtr = d->key;
         }
-        dlistlock->Release();
+        dlistLock->Release();
         return d->item;
     }
 }
@@ -111,7 +111,7 @@ bool DLList::IsEmpty()
 void DLList::SortedInsert(void *item, int sortKey)
 {
     static int control = 0;// also control the switch
-    dlistlock->Acquire();
+    dlistLock->Acquire();
     DLLElement *newone = new DLLElement(item, sortKey);
     if(!IsEmpty()) {
         if( testnum == 2){
@@ -124,6 +124,9 @@ void DLList::SortedInsert(void *item, int sortKey)
           first = newone;
           last = newone;
         }
+        if(testnum == 6 || testnum == 4 || testnum == 5){
+           DEBUG('t',"insert finished %d \n",newone->key);
+        }
     } else {
 
         if((testnum == 4 && canYield)){
@@ -134,7 +137,7 @@ void DLList::SortedInsert(void *item, int sortKey)
 
         if( testnum == 6 && canYield){
             currentThread->Yield();
-            DEBUG('t',"location 1 to insert key\n",newone->key);
+            DEBUG('t',"location 1  to insert key %d \n",newone->key);
         }
 
         while(now != NULL) {
@@ -151,7 +154,7 @@ void DLList::SortedInsert(void *item, int sortKey)
 
         if( testnum == 6 && canYield){
             currentThread->Yield();
-            DEBUG('t',"location 2 to insert key\n",newone->key);
+            DEBUG('t',"location 2 to insert key %d \n",newone->key);
         }
 
         if(now == NULL) {
@@ -167,11 +170,14 @@ void DLList::SortedInsert(void *item, int sortKey)
               first->prev = newone;
               newone->next = first;
               first = newone;
+              if(testnum == 6 || testnum == 4 || testnum == 5){
+                  DEBUG('t',"insert finished %d \n",newone->key);
+              }
         } else {
 
             if( testnum == 6 && canYield){
                 currentThread->Yield();
-                DEBUG('t',"location 4 to insert key\n",newone->key);
+                DEBUG('t',"location 4 to insert key %d \n",newone->key);
             }
 
             if(now == last) {
@@ -193,18 +199,21 @@ void DLList::SortedInsert(void *item, int sortKey)
                 now->next = newone;
                 newone->prev = now;
             }
+            if(testnum == 6 || testnum == 4 || testnum == 5){
+                DEBUG('t',"insert finished %d \n",newone->key);
+            }
         }
         if(testnum == 6 && canYield){
-            currentThread->Yield();
+          currentThread->Yield();
         } 
     }
 
-    dlistlock->Release();
+    dlistLock->Release();
 }
 
 void * DLList::SortedRemove(int sortKey)
 {
-    dlistlock->Acquire();
+    dlistLock->Acquire();
     
     if(IsEmpty()) {
        DLLElement *now = first;
@@ -228,10 +237,10 @@ void * DLList::SortedRemove(int sortKey)
              now->prev->next = now->next;
              now->next->prev = now->prev;
           }
-          dlistlock->Release();
+          dlistLock->Release();
           return now->item;
        }
     }
-    dlistlock->Release();
+    dlistLock->Release();
     return NULL;
 }

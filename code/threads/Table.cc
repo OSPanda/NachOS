@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <cstring>
 #include "synch.h"
+#include "system.h"
+extern int testnum; // introduce testnum to judeg the error type
 Table::Table(int size)
 {
 	num = size;
@@ -22,15 +24,18 @@ int
 Table::Alloc(void *object)
 {
 	lock->Acquire();
+	if(testnum == 7){// to test mux
+		currentThread->Yield();
+	}
 	if(!left){
 		return -1; 
 	}else{
 		// find place to insert data
 		while(table[nowindex]){
-			nowindex = (nowindex+1) % size;
+			nowindex = (nowindex+1) % num;
 		}
 		table[nowindex] = object;
-		nowindex = (nowindex+1) % size;
+		nowindex = (nowindex+1) % num;
 		left--;
 	}
 	lock->Release();
@@ -40,7 +45,7 @@ Table::Alloc(void *object)
 void 
 Table::Release(int index)
 {
-	assert(index < size && index > -1);
+	assert(index < num && index > -1);
 	lock->Acquire();
 	table[index] = NULL;
 	lock->Release();
@@ -50,8 +55,13 @@ Table::Release(int index)
 void *
 Table::Get(int index)
 {
-	assert(index < size && index > -1);
+	assert(index < num && index > -1);
 	lock->Acquire();
+	
+	if(testnum == 7){// to test mux
+		currentThread->Yield();
+	}
+	
 	void *r = table[index]; 
 	lock->Release();
 	return r;

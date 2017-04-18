@@ -12,11 +12,10 @@
 #include "copyright.h"
 #include "system.h"
 #include "dllist.h"
-#include <ctime>
 #include "synch.h"
 #include "Table.h"
 #include "BoundedBuffer.h"
-
+#include <assert.h>
 extern void genItem2List(DLList *dlist, int N);
 extern void delItem2List(DLList *dlist,int N); 
 
@@ -26,11 +25,11 @@ int threadNum=1;
 int oprNum=1;
 bool canYield=false;
 DLList* l = new DLList();// share data structure
-Lock *dlistlock = new Lock("dllist lock");
 Lock *outListLock =  new Lock("out of dlist define");
-Condition *dlistEmpty = new Condition("dlist empty cond");
+Lock *dlistLock = new Lock("lock of dlist"); 
 Table *table = new Table(10);
-BoundedBuffer * buffer = new BoundedBuffer(20);
+BoundedBuffer *buffer = new BoundedBuffer(20);
+int data[] = {1,3,4,13,12,17,18,23,19,20};
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -184,16 +183,36 @@ DllistTest6(int which){
 void
 TestTable(int which)
 {
-    static int seed = 0;
-    seed++;
-     
-    if(which % 2){
-        table->
-
-    }else{
-
+    int *object = new int,index;
+    *object = data[which -1];
+    printf("add object %d to table in thread %d\n",*object ,which);
+    index = table->Alloc((void *)object);
+    if(index != -1){
+        assert(((int *)table->Get(index))==object);
+        printf("get object %d to table in thread %d\n",*(int *)(table->Get(index)),which);
+        table->Release(index);
     }
+}
+ 
+void
+TestBoundedBuffer(int which)
+{
+    // one is write and others is consumer the data 
 
+    if(which == 1){
+        printf("produce begin in thread %d\n", which);
+        buffer->Write((void *)data,10);
+    }else{
+        printf("comsume begin in thread %d\n", which);
+        int cap = (10 / (threadNum - 1));
+        int *consume = new int[cap];
+        buffer->Read((void *)consume , cap); 
+        printf("the datas from buffer in thread %d\n",which);
+        for(int i = 0; i < cap; i++){
+            printf("%d\n",consume[i]);
+        }
+        printf("consumer completed in thread %d\n", which);
+    }
 }
 
 
@@ -257,18 +276,10 @@ ThreadTest()
     case 8:
         // to test BoundedBuffer.h
         toDllistTest(TestBoundedBuffer);
-
         break;
     default:
     	printf("No test specified.\n");
     	break;
     }
-
-    delete l；
-    delete　dlistlock;
-    delete　outListLock;
-    delete　dlistEmpty;
-    delete　table;
-    delete　buffer;
 }
 

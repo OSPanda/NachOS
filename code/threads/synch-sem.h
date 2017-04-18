@@ -78,10 +78,11 @@ class Lock {
 					// Condition variable ops below.
 
   private:
-
+    char *name;
     Semaphore *sem;
     Thread * currentHeldLockThread;  // current that hold lock 
     // plus some other stuff you'll need to define
+    
 };
 
 // The following class defines a "condition variable".  A condition
@@ -132,6 +133,7 @@ class Condition {
 					// these operations
 
   private:
+    char *name;
     Semaphore *sem;
     int numWaiting;
     Thread * currentHeldLockThread;  // current that hold lock 

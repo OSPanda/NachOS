@@ -1,4 +1,5 @@
 #include "synch.h"
+
 #ifndef BOUNDEDBUFFER_H
 #define  BOUNEDBUFFER_H
 class BoundedBuffer {
@@ -21,7 +22,7 @@ class BoundedBuffer {
     Lock *con_full;
     Lock *con_empty;
     Condition *not_full;
-    condition *not_empty; 
+    Condition *not_empty; 
     int readFrom;
     int writeTo;
     int hasCount;
