@@ -17,7 +17,7 @@
 #include "BoundedBuffer.h"
 #include <assert.h>
 extern void genItem2List(DLList *dlist, int N);
-extern void delItem2List(DLList *dlist, int N); 
+extern void delItem2List(DLList *dlist,int N); 
 
 // testnum is set in main.cc
 int testnum = 1;
@@ -28,8 +28,8 @@ DLList* l = new DLList();// share data structure
 Lock* outListLock =  new Lock("out of dlist define");
 Lock* dlistLock = new Lock("lock of dlist"); 
 Table* table = new Table(10);
-BoundedBuffer *buffer = new BoundedBuffer(20);
-int data[] = {1, 3, 4, 13, 12, 17, 18, 23, 19, 20};
+BoundedBuffer* buffer = new BoundedBuffer(20);
+int data[] = {1,3,4,13,12,17,18,23,19,20,13,33,27,43,26,21,16,14,10,29};
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -39,7 +39,7 @@ int data[] = {1, 3, 4, 13, 12, 17, 18, 23, 19, 20};
 //	purposes.
 //----------------------------------------------------------------------
 
-char*
+char *
 getName(int i) {
     switch(i)
     {
@@ -75,7 +75,7 @@ SimpleThread(int which) {
 //----------------------------------------------------------------------
 
 void
-DllistTest1(int which) {
+DllistTest1(int  which) {
     outListLock->Acquire();
     printf("add item in thread %d\n", which);
     genItem2List(l, oprNum);
@@ -87,21 +87,22 @@ DllistTest1(int which) {
 
 void
 DllistTest2(int which) {
-    for (int i = 0; i < oprNum; i++) {
+    for(int i = 0 ; i < oprNum ; i++){
         printf("add NO.%d item in thread %d\n", i + 1, which);
-        genItem2List(l,1);
+        genItem2List(l, 1);
     }
     printf("delete item in thread %d\n", which);
     delItem2List(l, oprNum);
 }
 
+
 void
 DllistTest3(int which) {
     // segmentation fault  delete  one element at one time
     printf("add item in thread %d\n", which);
-    genItem2List(l,oprNum);
+    genItem2List(l, oprNum);
     currentThread->Yield();
-    for(int i = 0; i < oprNum; i++){
+    for (int i = 0; i < oprNum; i++) {
         printf("delete NO.%d item in thread %d\n", i + 1, which);
         delItem2List(l, 1); 
     }
@@ -110,33 +111,32 @@ DllistTest3(int which) {
 void 
 DllistTest4(int which) {
     // segmentation fault　one is in the add the other is in delete  
-    if(which%2 == 1){
+    if (which%2 == 1) {
         canYield = false;
         printf("add item in thread %d\n", which); 
         genItem2List(l, oprNum);
         printf("delete item in thread %d\n", which);
-        for(int i = 0; i < oprNum-1; i++){
+        for (int i = 0; i < oprNum - 1; i++) {
             delItem2List(l, 1);
         }
         canYield = true;
         delItem2List(l, 1);
-    }else{
+    } else {
         printf("add item in thread %d\n", which);
         genItem2List(l, oprNum);
         printf("delete item in thread %d\n", which);
         delItem2List(l, oprNum);
     }
-
 }
 
 void 
-DllistTest5(int which) {
+DllistTest5 (int which) {
     canYield = false;
-    printf("add NO.1 item in thread %d\n",which);
+    printf("add NO.1 item in thread %d\n", which);
     genItem2List(l, 1);
     currentThread->Yield();
     canYield = true;
-    for(int i = 0; i < oprNum-1; i++){
+    for (int i = 0; i < oprNum - 1; i++) {
         printf("add NO.%d item in thread %d\n",i+2,which);
         genItem2List(l, 1);
     }
@@ -149,40 +149,39 @@ DllistTest6(int which) {
     if (which % 2 == 1) {
         canYield = false;
         printf("add NO.1 item in thread %d\n", which);
-        genItem2List(l,1);
+        genItem2List(l, 1);
         currentThread->Yield();
-        for (int i = 1; i < oprNum; i++) {
-            printf("add NO.%d item in thread %d\n", i+1 ,which);
-            genItem2List(l,1);
+        for (int i = 1 ; i < oprNum; i++) {
+            printf("add NO.%d item in thread %d\n", i + 1, which);
+            genItem2List(l, 1);
             // currentThread->Yield();
         }
         printf("delete item in thread %d\n", which);
-        delItem2List(l,oprNum);
+        delItem2List(l, oprNum);
     } else {
         printf("add NO.1 item in thread %d\n", which);
-        genItem2List(l,1);
+        genItem2List(l, 1);
         canYield = true;
         currentThread->Yield();
         for (int i = 1; i < oprNum; i++) {
-            printf("add NO.%d item in thread %d\n", i+1 ,which);
-            genItem2List(l,1);
+            printf("add NO.%d item in thread %d\n", i + 1, which);
+            genItem2List(l, 1);
             // currentThread->Yield();
         }
         printf("delete item in thread %d\n", which);
         delItem2List(l, oprNum);
     }
-    
 }
 
 void
 TestTable(int which)
 {
-    int *object = new int,index;
-    *object = data[which -1];
+    int *object = new int, index;
+    *object = data[which - 1];
     printf("add object %d to table in thread %d\n", *object, which);
     index = table->Alloc((void *)object);
-    if (index != -1){
-        assert(((int *)table->Get(index)) == object);
+    if (index != -1) {
+        assert(((int *)table->Get(index))==object);
         printf("get object %d to table in thread %d\n", *(int *)(table->Get(index)), which);
         table->Release(index);
     }
@@ -192,17 +191,15 @@ void
 TestBoundedBuffer(int which)
 {
     // one is write and others is consumer the data 
-
     if (which == 1) {
         printf("produce begin in thread %d\n", which);
-        buffer->Write((void *)data,10);
+        buffer->Write((void *)data, 15);
     } else {
         printf("comsume begin in thread %d\n", which);
-        int cap = (10 / (threadNum - 1));
-        int *consume = new int[cap];
-        buffer->Read((void *)consume , cap); 
+        int* consume = new int[which - 1];
+        buffer->Read((void *)consume , which - 1); 
         printf("the datas from buffer in thread %d\n",which);
-        for(int i = 0; i < cap; i++) {
+        for(int i = 0; i < which - 1; i++){
             printf("%d\n",consume[i]);
         }
         printf("consumer completed in thread %d\n", which);
@@ -210,12 +207,13 @@ TestBoundedBuffer(int which)
 }
 
 void 
-toDllistTest(VoidFunctionPtr func) {
+toDllistTest(VoidFunctionPtr func)
+{
     DEBUG('t', "Entering  toDllistTest\n");
     Thread *t;
-    for(int i = 0; i < threadNum; i++) {
-        t = new Thread(getName(i + 1));
-        t->Fork(func, i + 1); 
+    for(int i=0 ;i < threadNum ;i++) {
+        t = new Thread(getName(i+1));
+        t->Fork(func,i+1); 
     }
 } 
 

@@ -63,5 +63,4 @@ BoundedBuffer::Write(void *data, int size) {
 		size--;
 		monitor_lock->Release();
 	}
-	
 }
