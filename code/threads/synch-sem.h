@@ -80,7 +80,7 @@ class Lock {
   private:
     char *name;
     Semaphore *sem;
-    Semaphore *wait_atom;
+    Thread * currentHeldLockThread;  // current that hold lock 
     // plus some other stuff you'll need to define
     
 };
@@ -136,7 +136,7 @@ class Condition {
     char *name;
     Semaphore *sem;
     int numWaiting;
-    Thread * currentHeldLockThread;  // current that hold lock 
+    Semaphore *wait_atom;
     // plus some other stuff you'll need to define
 };
 #endif // SYNCH_H
