@@ -198,18 +198,21 @@ void
 TestBoundedBuffer(int which)
 {
     // one is write and others is consumer the data 
-
+    int *consume = NULL;
     if(which == 1){
         printf("produce begin in thread %d\n", which);
-        buffer->Write((void *)data,15);
+        buffer->Write((void *)data,18);
     }else{
         printf("comsume begin in thread %d\n", which);
-        int *consume = new int[which-1];
+        DEBUG('t',"TestBoundedBuffer before malloc\n");
+        consume = new int[which-1];
+        DEBUG('t',"TestBoundedBuffer after malloc\n");
         buffer->Read((void *)consume , which); 
         printf("the datas from buffer in thread %d\n",which);
         for(int i = 0; i < which-1; i++){
             printf("%d\n",consume[i]);
         }
+        delete[] consume;
         printf("consumer completed in thread %d\n", which);
     }
 }
