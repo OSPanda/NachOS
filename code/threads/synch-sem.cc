@@ -125,13 +125,14 @@ void Lock::Release()
 
 bool Lock::isHeldByCurrentThread()
 {
-    return currentThread == currentHeldLockThread? true:false;
+    return (currentThread == currentHeldLockThread);
 }
 
 Condition::Condition(char* debugName)
 { 
     name = debugName;
     sem = new Semaphore(debugName , 0);
+    wait_atom  = new Semaphore("ensure wait Atomicity",1);
     currentThread = NULL; 
     numWaiting = 0;
 }
@@ -141,15 +142,14 @@ Condition::~Condition()
 }
 void Condition::Wait(Lock* conditionLock)
 { 
-    assert(conditionLock->isHeldByCurrentThread());
-    
-    // still need off the interupt
+    assert(conditionLock->isHeldByCurrentThread()); 
+    wait_atom->P();// after release lock, to ensure operation Atomicity
     conditionLock->Release();
     numWaiting++; 
     sem->P();
     numWaiting--;
+    wait_atom->V();
     conditionLock->Acquire();// restart to require lock ,to rejudge the condition is satisfilied
-
 }
 void Condition::Signal(Lock* conditionLock)
 {
@@ -159,6 +159,7 @@ void Condition::Signal(Lock* conditionLock)
         sem->V();
         numWaiting--; 
     }
+   
 }
 void Condition::Broadcast(Lock* conditionLock)
 {

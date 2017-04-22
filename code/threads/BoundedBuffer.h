@@ -18,9 +18,7 @@ class BoundedBuffer {
      void Write(void *data, int size);
    private:
      // ???
-    Lock *IntoBuffer; 
-    Lock *con_full;
-    Lock *con_empty;
+    Lock * monitor_lock; 
     Condition *not_full;
     Condition *not_empty; 
     int readFrom;

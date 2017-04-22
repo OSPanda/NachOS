@@ -141,7 +141,7 @@ void Lock::Release()
 
 bool Lock::isHeldByCurrentThread()
 {
-    return (currentThread == currentHeldLockThread)? true : false;
+    return (currentThread == currentHeldLockThread);
 }
 
 Condition::Condition(char* debugName)
@@ -156,34 +156,30 @@ Condition::~Condition()
 void Condition::Wait(Lock* conditionLock)
 { 
     assert(conditionLock->isHeldByCurrentThread());
-    
     // still need off the interupt
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
     queue->Append((void *)currentThread);
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
     conditionLock->Release();
     currentThread->Sleep();
-    conditionLock->Acquire();// restart to require lock 
     (void) interrupt->SetLevel(oldLevel);
-
+    conditionLock->Acquire();// restart to require lock 
 }
 void Condition::Signal(Lock* conditionLock)
 {
+    // has lock acquire so don't require interupt
     Thread *thread;
     assert(conditionLock->isHeldByCurrentThread());
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    
     if(!queue->IsEmpty()){
         thread = (Thread *)queue->Remove();
         if (thread != NULL)    // make thread ready
             scheduler->ReadyToRun(thread);
     }
-    (void) interrupt->SetLevel(oldLevel);
+
 }
 void Condition::Broadcast(Lock* conditionLock)
 {
     Thread *thread;
     assert(conditionLock->isHeldByCurrentThread());
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
     // wake up all the thread
     while(!queue->IsEmpty()){
@@ -191,5 +187,4 @@ void Condition::Broadcast(Lock* conditionLock)
         if (thread != NULL)    // make thread ready
             scheduler->ReadyToRun(thread);
     }
-    (void) interrupt->SetLevel(oldLevel);
 }

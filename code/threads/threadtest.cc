@@ -29,7 +29,7 @@ Lock *outListLock =  new Lock("out of dlist define");
 Lock *dlistLock = new Lock("lock of dlist"); 
 Table *table = new Table(10);
 BoundedBuffer *buffer = new BoundedBuffer(20);
-int data[] = {1,3,4,13,12,17,18,23,19,20};
+int data[] = {1,3,4,13,12,17,18,23,19,20,13,33,27,43,26,21,16,14,10,29};
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -201,14 +201,13 @@ TestBoundedBuffer(int which)
 
     if(which == 1){
         printf("produce begin in thread %d\n", which);
-        buffer->Write((void *)data,10);
+        buffer->Write((void *)data,15);
     }else{
         printf("comsume begin in thread %d\n", which);
-        int cap = (10 / (threadNum - 1));
-        int *consume = new int[cap];
-        buffer->Read((void *)consume , cap); 
+        int *consume = new int[which-1];
+        buffer->Read((void *)consume , which); 
         printf("the datas from buffer in thread %d\n",which);
-        for(int i = 0; i < cap; i++){
+        for(int i = 0; i < which-1; i++){
             printf("%d\n",consume[i]);
         }
         printf("consumer completed in thread %d\n", which);
@@ -241,7 +240,6 @@ toDllistTest(VoidFunctionPtr func)
         t->Fork(func,i+1); 
     }
 } 
-
 
 void
 ThreadTest()

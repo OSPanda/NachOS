@@ -80,7 +80,7 @@ class Lock {
   private:
     char *name;
     Semaphore *sem;
-    Thread * currentHeldLockThread;  // current that hold lock 
+    Semaphore *wait_atom;
     // plus some other stuff you'll need to define
     
 };
