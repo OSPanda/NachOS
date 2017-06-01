@@ -18,6 +18,7 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 					// for invoking context switches
+Alarm *alarm;
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
@@ -62,6 +63,7 @@ TimerInterruptHandler(int dummy)
 {
     if (interrupt->getStatus() != IdleMode)
 	interrupt->YieldOnReturn();
+    alarm->awake();
 }
 
 //----------------------------------------------------------------------
@@ -79,7 +81,7 @@ Initialize(int argc, char **argv)
 {
     int argCount;
     char* debugArgs = "";
-    bool randomYield = FALSE;
+    bool randomYield = TRUE;// open timer whenever there has "-rs "
 
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE;	// single step user program
@@ -133,6 +135,7 @@ Initialize(int argc, char **argv)
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
     scheduler = new Scheduler();		// initialize the ready queue
+    alarm = new Alarm();
     if (randomYield)				// start the timer (if needed)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
