@@ -27,40 +27,42 @@ class Elevator {
      
      // insert your methods here, if needed
      bool* getRequest(){return request;}
-     EventBarrier* getUpFloor(){return upFloor;}
-     EventBarrier* getdownFloor(){return downFloor;}
-     int getCurrentFloor(){return currentfloor;}
+     int   getCurrentFloor(){return currentfloor;}
+     void  setBuilding(Building *building){b = building;}
    private:
      char *name;
    
      int currentfloor;           // floor where currently stopped
      int occupancy;              // how many riders currently onboard
    
-     // insert your data structures here, if needed
+     // insert() your data structures here, if needed
      int numFloors;
      int id;
-     int direction;// 1 means up, 0 means down 
+     int direction;// 0 means down,1 means up  
      int destnation;
      bool* request; // mark request floor,if it is true 
      int status; // elevator status 0 means working 1 means free
      EventBarrier* exit;
-     EventBarrier *upFloor; 
-     EventBarrier *downFloor; 
      Lock *con_lock;
      int closeDoorNum;
      Condition *con_closeDoor;
+     Building *b;
 };
 
-/*class Floor{
+class Floor{
 public:
-    EventBarrier *b; 
-    Elevator *e;  // which elevator will handler this request
+    EventBarrier *e;
     Floor()
     {
-        b = new EventBarrier();
+      e = new EventBarrier[2]; // 0 means down,1 means up
+    }
+    ~Floor()
+    {
+      delete[] e;　
     }
 };
-*/
+
+
    
 class Building {
    public:
@@ -74,13 +76,18 @@ class Building {
      void CallDown(int fromFloor);    //   ... down
      Elevator *AwaitUp(int fromFloor); // wait for elevator arrival & going up
      Elevator *AwaitDown(int fromFloor); // ... down
-    /* Floor* getUpFloors(){return upFloors;}
-     Floor* getdownFloors(){return downFloors;}*/
+     Floor* getFloors(){return floors;}
+     bool*  getSrcUp(){return srcUp;} 
+     bool*  getSrcDown(){return srcDown;}
+     Lock*  getLock(){return mutex;}
    private:
      char *name;
-     /*Floor* upFloors;  
-     Floor* downFloors;*/
+     int floorNum;
      Elevator *elevator;
+     Floor *floors;
+     bool *srcUp;
+     bool *srcDown;
+     Lock *mutex;
      // insert your data structures here, if needed
 };
 
