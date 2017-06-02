@@ -73,6 +73,7 @@ void
 Elevator::VisitFloor(int floor)
 {
 	// reach the floor 
+	alarm.Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
 	currentfloor = floor;
 }
 
@@ -185,4 +186,55 @@ Building::AwaitDown(int fromFloor) // ... down
 	/*downFloors[fromFloor].b->Wait();*/
 	floors[fromFloor].e[0].Wait(); 
 	return elevator;
+}
+
+
+// elevator run function 
+// author by huangxi
+void
+Building::RunElev(int eid) {
+    Elevator *elev = elevator;
+    int next; // Destination
+    while (true) {
+        next = 0;
+        mutex.Acquire();
+        if (elev->getDirection()) { // True when elevator is going down  
+            // Find the farest floor having riders waiting to enter or exit the elevator in current direction
+            for (i = elev->getCurrentFloor(); i >= 1; --i) {
+                if (srcDown[i] || elev->request[i]) { next = i; }
+            }
+        } else {
+            for (i = elev->getCurrentFloor(); i <= floorNum; ++i) {
+                if (srcUp[i] || elev->request[i]) { next = i; }
+            }
+        }
+        mutex.Release();
+        if (!next && !elev->getOccupancy()) {    // No one onboard and no more waiting rider in current direction
+            // Change direction
+            elev->changeDirection();
+            DEBUG('t', "Elevator %d changed direction to %d at floor %d\n", eid, elev->getDirection(), elev->getCurrentFloor());
+            continue;
+        }
+        assert(next > 0 && "Elevator having people onboard but the Request array is not set correctly.");
+        if (elev->getDirection()) {
+            for (i = elev->getCurrentFloor(); i >= next; --i) {
+                elev->VisitFloor(i);
+                // If any rider wanna enter or exit on floor i, open then close door
+                if (srcDown[i] || elev->request[i]) {
+                    DEBUG('t', "Elevator %d stopped at floor %d\n", eid, i);
+                    elev->OpenDoors();
+                    elev->CloseDoors();
+                }
+            }
+        } else {
+            for (i = elev->getCurrentFloor(); i <= next; ++i) {
+                elev->VisitFloor(i);
+                if (srcUp[i] || elev->request[i]) {
+                    DEBUG('t', "Elevator %d stopped at floor %d\n", eid, i);
+                    elev->OpenDoors();
+                    elev->CloseDoors();
+                }
+            }
+        }
+    }
 }

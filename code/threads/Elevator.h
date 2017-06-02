@@ -9,7 +9,10 @@ existing interfaces.
 #define EVEVATOR_H
 #include "EventBarrier.h"
 #include　"synch.h"
-
+#include "system.h"
+#include <assert.h>
+#include <cmath>
+#define _COSTPERFLOOR 100
 class Elevator {
    public:
      Elevator(char *debugName, int numFloors, int myID);
