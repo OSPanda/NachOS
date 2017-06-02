@@ -10,7 +10,8 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
     exit = new EventBarrier[numFloors+1];//barrier for going out
     con_lock = new Lock("lock for occupancy");
     con_closeDoor = new Condition("condition for close door");
-    occupancy = 1000;// can setting
+    occupancy = 0;// can setting
+    capacity = 100;
 }
 
 Elevator::~Elevator()
@@ -32,12 +33,12 @@ Elevator::OpenDoors()
 	//let rider outside go in
 	if(direction == 1){// up
 		int waiters = b->getFloors()[currentfloor].e[1].Waiters(); 
-		closeDoorNum = waiters > occupancy? occupancy:waiters;
+		closeDoorNum = waiters > (capatity-occupancy)?(capatity-occupancy):waiters;
 		con_lock->Release();
 		b->getFloors()[currentfloor].e[1].Signal();
 	}else{// down
 		int waiters = b->getFloors()[currentfloor].e[0].Waiters(); 
-		closeDoorNum = waiters > occupancy? occupancy:waiters;
+		closeDoorNum = waiters > (capatity-occupancy)?(capatity-occupancy):waiters;
 		con_lock->Release();
 		b->getFloors()[currentfloor].e[0].Signal(); 
 	}
@@ -81,7 +82,7 @@ Elevator::Enter()
 	// judge if there has enough occupancy
 	// if no return false;
 	con_lock->Acquire();
-	if(occupancy == 0){  //to avoid the rider request again 
+	if(occupancy == capacity){  //to avoid the rider request again 
 		con_lock->Release();
 		// to wait next time
 		if(direction == 1){
@@ -91,7 +92,7 @@ Elevator::Enter()
 		} 
 		return false;
 	}else{
-		occupancy--;
+		occupancy++;
 		con_lock->Release();
 		if(direction == 1){
 			b->getFloors()[currentfloor].e[1].Complete();
@@ -106,7 +107,7 @@ void
 Elevator::Exit()
 {
 	con_lock->Acquire();
-	occupancy++;
+	occupancy--;
 	con_lock->Release();
 	exit[currentfloor].Complete();//go out
 }
@@ -138,11 +139,12 @@ Building::Building(char *debugname, int numFloors, int numElevators)
 
 Building::~Building()
 {
-	/*delete[] upFloors;
-	delete[] downFloors;*/
 	delete elevator;
 	delete[] src;	
 	delete[] floors;
+	delete[] srcUp;
+	delete[] srcDown;
+	delete mutex;
 }
 
 void 
@@ -173,7 +175,7 @@ Building::CallDown(int fromFloor)    //   ... down
 Elevator *
 Building::AwaitUp(int fromFloor) 
 {   // wait for elevator arrival & going up
-	floors[fromFloor].Wait(); 
+	floors[fromFloor].e[1].Wait(); 
 	return elevator;  
 }
 
@@ -181,6 +183,6 @@ Elevator *
 Building::AwaitDown(int fromFloor) // ... down
 {
 	/*downFloors[fromFloor].b->Wait();*/
-	floors[fromFloor].Wait(); 
+	floors[fromFloor].e[0].Wait(); 
 	return elevator;
 }
