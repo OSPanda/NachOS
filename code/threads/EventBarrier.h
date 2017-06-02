@@ -37,5 +37,4 @@ class EventBarrier{
 }
 
 
-
 #endif

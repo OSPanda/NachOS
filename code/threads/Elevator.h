@@ -8,6 +8,7 @@ existing interfaces.
 #ifndef ELEVATOR_H
 #define EVEVATOR_H
 #include "EventBarrier.h"
+#include　"synch.h"
 class Elevator {
    public:
      Elevator(char *debugName, int numFloors, int myID);
@@ -20,12 +21,15 @@ class Elevator {
      void VisitFloor(int floor);      //   go to a particular floor
    
      // elevator rider interface (part 1): called by rider threads.
-     void Enter();                    //   get in
+     bool Enter();                    //   get in
      void Exit();                     //   get out (iff destinationFloor)
      void RequestFloor(int floor);    //   tell the elevator our destinationFloor
-   
+     
      // insert your methods here, if needed
-
+     bool* getRequest(){return request;}
+     EventBarrier* getUpFloor(){return upFloor;}
+     EventBarrier* getdownFloor(){return downFloor;}
+     int getCurrentFloor(){return currentfloor;}
    private:
      char *name;
    
@@ -36,8 +40,27 @@ class Elevator {
      int numFloors;
      int id;
      int direction;// 1 means up, 0 means down 
-     EventBarrier[] floors; // mark as every floor has two EventBarrier
+     int destnation;
+     bool* request; // mark request floor,if it is true 
+     int status; // elevator status 0 means working 1 means free
+     EventBarrier* exit;
+     EventBarrier *upFloor; 
+     EventBarrier *downFloor; 
+     Lock *con_lock;
+     int closeDoorNum;
+     Condition *con_closeDoor;
 };
+
+/*class Floor{
+public:
+    EventBarrier *b; 
+    Elevator *e;  // which elevator will handler this request
+    Floor()
+    {
+        b = new EventBarrier();
+    }
+};
+*/
    
 class Building {
    public:
@@ -45,21 +68,25 @@ class Building {
      ~Building();
      char *getName() { return name; }
    
-   				
+     				
      // elevator rider interface (part 2): called by rider threads
      void CallUp(int fromFloor);      //   signal an elevator we want to go up
      void CallDown(int fromFloor);    //   ... down
      Elevator *AwaitUp(int fromFloor); // wait for elevator arrival & going up
      Elevator *AwaitDown(int fromFloor); // ... down
-   
+    /* Floor* getUpFloors(){return upFloors;}
+     Floor* getdownFloors(){return downFloors;}*/
    private:
      char *name;
-     Elevator *elevator;         // the elevators in the building (array)
-     
+     /*Floor* upFloors;  
+     Floor* downFloors;*/
+     Elevator *elevator;
      // insert your data structures here, if needed
-    
-
 };
+
+
+
+
 #endif 
 
 
