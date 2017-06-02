@@ -138,11 +138,12 @@ Building::Building(char *debugname, int numFloors, int numElevators)
 
 Building::~Building()
 {
-	/*delete[] upFloors;
-	delete[] downFloors;*/
 	delete elevator;
 	delete[] src;	
 	delete[] floors;
+	delete[] srcUp;
+	delete[] srcDown;
+	delete mutex;
 }
 
 void 
