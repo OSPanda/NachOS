@@ -9,6 +9,7 @@ existing interfaces.
 #define EVEVATOR_H
 #include "EventBarrier.h"
 #include　"synch.h"
+
 class Elevator {
    public:
      Elevator(char *debugName, int numFloors, int myID);
@@ -24,29 +25,32 @@ class Elevator {
      bool Enter();                    //   get in
      void Exit();                     //   get out (iff destinationFloor)
      void RequestFloor(int floor);    //   tell the elevator our destinationFloor
-     
+
      // insert your methods here, if needed
-     bool* getRequest(){return request;}
-     int   getCurrentFloor(){return currentfloor;}
-     void  setBuilding(Building *building){b = building;}
+     int   getCurrentFloor() { return currentfloor; }
+     int   getOccupancy() { return occupancy; }
+     int  getDirection() { return direction; }
+     void changeDirection() { direction = 1 - direction; }
+     void  setBuilding(Building *building) { b = building; }
+     bool  *request; // mark request floor,if it is true 
+
    private:
      char *name;
    
      int currentfloor;           // floor where currently stopped
      int occupancy;              // how many riders currently onboard
-   
+     
      // insert() your data structures here, if needed
+     int capacity;               // the capacity of elevator
      int numFloors;
      int id;
-     int direction;// 0 means down,1 means up  
-     int destnation;
-     bool* request; // mark request floor,if it is true 
-     int status; // elevator status 0 means working 1 means free
-     EventBarrier* exit;
-     Lock *con_lock;
+     int direction;              // 0 means down,1 means up  
+     int status;                 // elevator status 0 means working 1 means free
      int closeDoorNum;
+     EventBarrier *exit;
+     Lock *con_lock;
      Condition *con_closeDoor;
-     Building *b;
+     Building  *b;
 };
 
 class Floor{
@@ -69,25 +73,27 @@ class Building {
      Building(char *debugname, int numFloors, int numElevators);
      ~Building();
      char *getName() { return name; }
-   
      				
      // elevator rider interface (part 2): called by rider threads
-     void CallUp(int fromFloor);      //   signal an elevator we want to go up
-     void CallDown(int fromFloor);    //   ... down
-     Elevator *AwaitUp(int fromFloor); // wait for elevator arrival & going up
-     Elevator *AwaitDown(int fromFloor); // ... down
-     Floor* getFloors(){return floors;}
-     bool*  getSrcUp(){return srcUp;} 
-     bool*  getSrcDown(){return srcDown;}
-     Lock*  getLock(){return mutex;}
+     void CallUp(int fromFloor);          //   signal an elevator we want to go up
+     void CallDown(int fromFloor);        //   ... down
+     Elevator *AwaitUp(int fromFloor);    // wait for elevator arrival & going up
+     Elevator *AwaitDown(int fromFloor);  // ... down
+     
+     Floor *getFloors() { return floors; }
+     bool  *getSrcUp() { return srcUp; } 
+     bool  *getSrcDown() { return srcDown; }
+     Lock  *getLock() { return mutex; }
+     void  RunElev(int eid = 0);
+
    private:
      char *name;
      int floorNum;
      Elevator *elevator;
      Floor *floors;
-     bool *srcUp;
-     bool *srcDown;
-     Lock *mutex;
+     bool  *srcUp;
+     bool  *srcDown;
+     Lock  *mutex;
      // insert your data structures here, if needed
 };
 
