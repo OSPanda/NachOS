@@ -166,6 +166,7 @@ Building::CallUp(int fromFloor)
 	
 	// select one elevator 
 	// ...
+	printf("call up\n");
 	mutex->Acquire();
 	srcUp[fromFloor] = true;
 	mutex->Release();
@@ -179,6 +180,7 @@ Building::CallDown(int fromFloor)    //   ... down
 	
 	// select one elevator 
 	// ...
+	printf("call down\n");
 	mutex->Acquire();
 	srcDown[fromFloor] = true;
 	mutex->Release();
@@ -187,6 +189,7 @@ Building::CallDown(int fromFloor)    //   ... down
 Elevator *
 Building::AwaitUp(int fromFloor) 
 {   // wait for elevator arrival & going up
+	printf("await up\n");
 	floors[fromFloor].e[1].Wait(); 
 	return elevator;  
 }
@@ -195,6 +198,7 @@ Elevator *
 Building::AwaitDown(int fromFloor) // ... down
 {
 	/*downFloors[fromFloor].b->Wait();*/
+	printf("await down\n");
 	floors[fromFloor].e[0].Wait(); 
 	return elevator;
 }

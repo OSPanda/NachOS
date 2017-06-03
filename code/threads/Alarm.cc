@@ -20,6 +20,7 @@ check(int  which)
 	while(Alarm::num != 0){
 		currentThread->Yield();
 	}
+	DEBUG('t', "dummy thread finish\n");
 	return;
 }
 
