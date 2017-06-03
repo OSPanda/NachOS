@@ -1,5 +1,5 @@
 #include "EventBarrier.h"
-
+#include "system.h"
 EventBarrier::EventBarrier()
 {
 	status = false; 
@@ -32,9 +32,10 @@ EventBarrier::Wait()
 void
 EventBarrier::Signal()
 {// only one can call signal 
+	DEBUG('t',"[EB] in EventBarrier signal\n");
 	barrierLock->Acquire();
 	status = true;
-	if(Waiters()!=0){
+	if(waitNum!=0){
 		// wake up other waiters
 		signal_con->Broadcast(barrierLock);
 		// blocked in complete condition 
@@ -50,6 +51,7 @@ EventBarrier::Signal()
 	// make sure other wait one call wait another time
 	//changeStatus_con->Broadcast(barrierLock); 
 	barrierLock->Release();
+	DEBUG('t',"[EB] out EventBarrier signal\n");
 }
 
 void
@@ -57,7 +59,7 @@ EventBarrier::Complete()
 {
 	barrierLock->Acquire();
 	
-	if(Waiters() == 0){// is "if" suitable? 
+	if(waitNum== 0){// is "if" suitable? 
 		// the last one to release lock
 		status = false;// change status 
 		complete_con->Broadcast(barrierLock);

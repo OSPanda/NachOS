@@ -35,7 +35,14 @@ void delItem2List(DLList *dlist,int N)
     }
 }
 
-
+int
+getRandNum(int range)
+{
+    static int random=0; 
+    random ++;
+    srand(unsigned(time(0))+random);
+    return rand() % range + 1;
+}
 /*int main()
 {
     DLList* l= new DLList();

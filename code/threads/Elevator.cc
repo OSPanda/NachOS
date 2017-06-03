@@ -6,14 +6,14 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
 	name = debugName;
 	this->numFloors = numFloors;  // floor of building  
 	id = myID; // mark one elevator
-    request = new bool[numFloors+1];
-    exit = new EventBarrier[numFloors+1];//barrier for going out
+    request = new bool[numFloors+2];
+    exit = new EventBarrier[numFloors+2];//barrier for going out
     con_lock = new Lock("lock for occupancy");
     con_closeDoor = new Condition("condition for close door");
     occupancy = 0;// can setting
-    capacity = 100;
+    capacity = 3; // setting capacity
     currentfloor = 1;
-    direction = 1; 
+    direction = 0; 
 }
 
 Elevator::~Elevator()
@@ -29,49 +29,35 @@ void
 Elevator::OpenDoors()
 {
 	//let rider inside go out
-	printf("on floor %d direction %d open door\n",currentfloor,direction); 
+	printf("[ELEV] on floor %d open door\n",currentfloor); 
 	exit[currentfloor].Signal();
-
-	// calculate close door num;
 	con_lock->Acquire();
-	//let rider outside go in
+	// calculate close door num;
     int waiters = b->getFloors()[currentfloor].e[direction].Waiters(); 
     closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
     con_lock->Release();
-    b->getFloors()[currentfloor].e[direction].Signal();
-	// if(direction == 1){// up
-	// 	int waiters = b->getFloors()[currentfloor].e[1].Waiters(); 
-	// 	closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
-	// 	con_lock->Release();
-	// 	b->getFloors()[currentfloor].e[1].Signal();
-	// }else{// down
-	// 	int waiters = b->getFloors()[currentfloor].e[0].Waiters(); 
-	// 	closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
-	// 	con_lock->Release();
-	// 	b->getFloors()[currentfloor].e[0].Signal(); 
-	// }
-}
 
-void 	
-Elevator::CloseDoors()
-{   //if capacity has no limit,make sure people all in  
-	// but if has limit,when it reach the capacity 
-	
-	//door should close
-	printf("on floor %d direction %d close door\n",currentfloor,direction);  
-	con_lock->Acquire();
-	while(closeDoorNum != 0){
-		con_closeDoor->Wait(con_lock);
-	}
-
+    //set src or srcdown , deal with problem that capacity limited
     b->getLock()->Acquire(); // Will there be any possible deadlock?
 	if(direction == 1){
 		b->getSrcUp()[currentfloor] = false;
 	}else{
 		b->getSrcDown()[currentfloor] = false;
 	}
-    b->getLock()->Release();
-	
+    b->getLock()->Release(); 
+
+    b->getFloors()[currentfloor].e[direction].Signal();
+}
+
+void 	
+Elevator::CloseDoors()
+{   //if capacity has no limit,make sure people all in  
+	// but if has limit,when it reach the capacity 
+	printf("[ELEV] on floor %d close door\n",currentfloor);  
+	con_lock->Acquire();
+	while(closeDoorNum != 0){
+		con_closeDoor->Wait(con_lock);
+	}
 	request[currentfloor] = false;
 	con_lock->Release();
 }   
@@ -80,7 +66,7 @@ void
 Elevator::VisitFloor(int floor)
 {
 	// reach the floor 
-	printf("visit floor %d direction %d\n",currentfloor,direction); 
+	printf("[ELEV] visit floor %d\n",currentfloor); 
 	alarms->Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
 	currentfloor = floor;
 }
@@ -90,27 +76,17 @@ Elevator::Enter()
 {
 	// judge if there has enough occupancy
 	// if no return false;
-	printf("some one enter on floor %d direction %d \n",currentfloor,direction); 
 	con_lock->Acquire();
 	if(occupancy == capacity){  //to avoid the rider request again 
 		con_lock->Release();
 		// to wait next time
         b->getFloors()[currentfloor].e[direction].Complete();
-		// if(direction == 1){
-		// 	b->getFloors()[currentfloor].e[1].Complete();
-		// }else{
-		// 	b->getFloors()[currentfloor].e[0].Complete(); 
-		// } 
 		return false;
 	}else{
+		printf("[PERS] some one enter on floor %d \n",currentfloor); 
 		occupancy++;
 		con_lock->Release();
         b->getFloors()[currentfloor].e[direction].Complete();
-		// if(direction == 1){
-		// 	b->getFloors()[currentfloor].e[1].Complete();
-		// }else{
-		// 	b->getFloors()[currentfloor].e[0].Complete(); 
-		// }
 		return true;
 	}
 }
@@ -118,7 +94,7 @@ Elevator::Enter()
 void
 Elevator::Exit()
 {
-	printf("exit on floor %d direction %d\n",currentfloor,direction); 	
+	printf("[PERS] exit on floor %d \n",currentfloor); 	
 	con_lock->Acquire();
 	occupancy--;
 	con_lock->Release();
@@ -128,6 +104,7 @@ Elevator::Exit()
 void
 Elevator::RequestFloor(int floor)
 {	
+	printf("[PERS] request floor %d\n", floor);
 	request[floor] = true;
 	con_lock->Acquire();
 	closeDoorNum--;
@@ -138,14 +115,15 @@ Elevator::RequestFloor(int floor)
 	exit[floor].Wait();
 }
 
-//building define
+//----------------building define-------------------------
 Building::Building(char *debugname, int numFloors, int numElevators)
 {
 	elevator = new Elevator(debugname, numFloors, 1);
+	elevator->setBuilding(this);
 	name = debugname;
-	srcUp = new bool[numFloors+1];
-	srcDown = new bool[numFloors+1];
-	floors = new Floor[numFloors+1]; 
+	srcUp = new bool[numFloors+2];
+	srcDown = new bool[numFloors+2];
+	floors = new Floor[numFloors+2]; 
 	mutex = new Lock("lock for building");
 	floorNum = numFloors;
 }
@@ -162,11 +140,7 @@ Building::~Building()
 void 
 Building::CallUp(int fromFloor)      
 {  
-	/*upFloors[fromFloor].e = elevator;*/
-	
-	// select one elevator 
-	// ...
-	printf("call up\n");
+	printf("[BLDG] call up in %d floor\n",fromFloor);
 	mutex->Acquire();
 	srcUp[fromFloor] = true;
 	mutex->Release();
@@ -174,13 +148,9 @@ Building::CallUp(int fromFloor)
 
 
 void 
-Building::CallDown(int fromFloor)    //   ... down
+Building::CallDown(int fromFloor)   
 {
-	/*downFloors[fromFloor].e = elevator;*/
-	
-	// select one elevator 
-	// ...
-	printf("call down\n");
+	printf("[BLDG] call down %d floor\n",fromFloor);
 	mutex->Acquire();
 	srcDown[fromFloor] = true;
 	mutex->Release();
@@ -189,7 +159,7 @@ Building::CallDown(int fromFloor)    //   ... down
 Elevator *
 Building::AwaitUp(int fromFloor) 
 {   // wait for elevator arrival & going up
-	printf("await up\n");
+	printf("[BLDG] await up in %d floor \n",fromFloor);
 	floors[fromFloor].e[1].Wait(); 
 	return elevator;  
 }
@@ -197,8 +167,7 @@ Building::AwaitUp(int fromFloor)
 Elevator *
 Building::AwaitDown(int fromFloor) // ... down
 {
-	/*downFloors[fromFloor].b->Wait();*/
-	printf("await down\n");
+	printf("[BLDG] await down in %d floor\n",fromFloor);
 	floors[fromFloor].e[0].Wait(); 
 	return elevator;
 }
@@ -213,7 +182,7 @@ Building::RunElev(int eid) {
     while (true) {
         next = 0;
         mutex->Acquire();
-        if (elev->getDirection()) { // True when elevator is going down  
+        if (!elev->getDirection()) { // False when elevator is going down  
             // Find the farest floor having riders waiting to enter or exit the elevator in current direction
             for (int i = elev->getCurrentFloor(); i >= 1; --i) {
                 if (srcDown[i] || elev->request[i]) { next = i; }
@@ -225,18 +194,32 @@ Building::RunElev(int eid) {
         }
         mutex->Release();
         if (!next && !elev->getOccupancy()) {    // No one onboard and no more waiting rider in current direction
+            if (!elev->getDirection()) { // False when elevator is going down  
+	            // Find the farest floor having riders waiting to enter or exit the elevator in current direction
+	            for (int i = elev->getCurrentFloor(); i >= 1; --i) {
+	                if (srcUp[i]) { next = i; }
+	            }
+	        } else {
+	            for (int i = elev->getCurrentFloor(); i <= floorNum; ++i) {
+	                if (srcDown[i]) { next = i; }
+	            }
+	        }
+	        if (next) { 
+	        	elev->VisitFloor(next);
+	        }
             // Change direction
             elev->changeDirection();
-            DEBUG('t', "Elevator %d changed direction to %d at floor %d\n", eid, elev->getDirection(), elev->getCurrentFloor());
+            DEBUG('t', "[ELEV]Elevator %d changed direction to %d at floor %d\n", eid, elev->getDirection(), elev->getCurrentFloor());
             continue;
         }
-        assert(next > 0 && "Elevator having people onboard but the Request array is not set correctly.");
-        if (elev->getDirection()) {
+        assert(next > 0 && "[ELEV]Elevator having people onboard but the Request array is not set correctly.");
+        printf("[ELEV] Desitination set to %d.\n", next);
+        if (!elev->getDirection()) {
             for (int i = elev->getCurrentFloor(); i >= next; --i) {
                 elev->VisitFloor(i);
                 // If any rider wanna enter or exit on floor i, open then close door
                 if (srcDown[i] || elev->request[i]) {
-                    DEBUG('t', "Elevator %d stopped at floor %d\n", eid, i);
+                    DEBUG('t', "[ELEV]Elevator %d stopped at floor %d\n", eid, i);
                     elev->OpenDoors();
                     elev->CloseDoors();
                 }
@@ -245,7 +228,7 @@ Building::RunElev(int eid) {
             for (int i = elev->getCurrentFloor(); i <= next; ++i) {
                 elev->VisitFloor(i);
                 if (srcUp[i] || elev->request[i]) {
-                    DEBUG('t', "Elevator %d stopped at floor %d\n", eid, i);
+                    DEBUG('t', "[ELEV]Elevator %d stopped at floor %d\n", eid, i);
                     elev->OpenDoors();
                     elev->CloseDoors();
                 }

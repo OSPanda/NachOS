@@ -20,7 +20,7 @@ check(int  which)
 	while(Alarm::num != 0){
 		currentThread->Yield();
 	}
-	DEBUG('t', "dummy thread finish\n");
+	DEBUG('t', "[ALRM] dummy thread finish\n");
 	return;
 }
 
@@ -38,7 +38,7 @@ Alarm::Pause(int howLong)
 
 	// create dummy thread to check 
 	if(num ==  1){
-		Thread *t = new Thread("dummy thread\n");
+		Thread *t = new Thread("dummy thread");
 		t->Fork(check,0); 
 	}
 

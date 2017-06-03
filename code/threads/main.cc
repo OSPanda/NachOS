@@ -56,7 +56,7 @@
 #ifdef THREADS
 extern int testnum;
 extern int threadNum;
-extern int oprNum;
+extern int floorNums;
 #endif
 
 // External functions used by this file
@@ -102,13 +102,13 @@ main(int argc, char **argv)
         argCount++; 
         break; 
       case 'n':
- 		oprNum = atoi(argv[1]); 
+ 		floorNums = atoi(argv[1]); 
  		argCount++;
         break;
       default:
-        testnum = 1;
-        oprNum = 2 ;
-        threadNum= 2;
+        int testnum = 1;
+        int threadNum=1;
+        int floorNums = 10;
         break;
       }
     }

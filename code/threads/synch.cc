@@ -114,7 +114,7 @@ Lock::~Lock()
 void Lock::Acquire()
 {   
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
-    while( value == false){
+    while( value == false) {
         // go to sleep   does not guarantee that a thread awakened in V will get a chance
         // to run before another thread calls P 
         queue->Append((void *)currentThread);   // so go to sleep
@@ -135,7 +135,7 @@ void Lock::Release()
             scheduler->ReadyToRun(thread);
     }
     value = true;
-    
+    DEBUG('t', "[LOCK]%s Released.\n", name);
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
 
