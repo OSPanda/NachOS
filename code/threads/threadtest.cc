@@ -15,6 +15,7 @@
 #include "synch.h"
 #include "Table.h"
 #include "BoundedBuffer.h"
+#include "Elevator.h"
 #include <assert.h>
 extern void genItem2List(DLList *dlist, int N);
 extern void delItem2List(DLList *dlist,int N); 
@@ -30,6 +31,7 @@ Lock *dlistLock = new Lock("lock of dlist");
 Table *table = new Table(10);
 BoundedBuffer *buffer = new BoundedBuffer(20);
 int data[] = {1,3,4,13,12,17,18,23,19,20,13,33,27,43,26,21,16,14,10,29};
+Building *building;
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -228,12 +230,106 @@ ThreadTest1()
     // SimpleThread(0);
 }
 
+// test alarm 
 void 
 testAlarm(int which)
 {
-    alarms->Pause(which*10);
-    printf("NO.%d thread finish its test",which);
+    alarms->Pause(which*oprNum);
+    printf("NO.%d thread finish its test\n",which);
 }
+
+//test elevator
+//--------------------------
+// rider action
+//------------------
+void rider(int id, int srcFloor, int dstFloor) {
+  Elevator *e;
+
+  if (srcFloor == dstFloor)
+     return;
+
+  DEBUG('t',"Rider %d travelling from %d to %d\n",id,srcFloor,dstFloor);
+  do {
+     if (srcFloor < dstFloor) {
+        DEBUG('t', "Rider %d CallUp(%d)\n", id, srcFloor);
+        building->CallUp(srcFloor);
+        DEBUG('t', "Rider %d AwaitUp(%d)\n", id, srcFloor);
+        e = building->AwaitUp(srcFloor);
+     } else {
+        DEBUG('t', "Rider %d CallDown(%d)\n", id, srcFloor);
+        building->CallDown(srcFloor);
+        DEBUG('t', "Rider %d AwaitDown(%d)\n", id, srcFloor);
+        e = building->AwaitDown(srcFloor);
+     }
+     DEBUG('t', "Rider %d Enter()\n", id);
+  } while (!e->Enter()); // elevator might be full!
+
+  DEBUG('t', "Rider %d RequestFloor(%d)\n", id, dstFloor);
+  e->RequestFloor(dstFloor); // doesn't return until arrival
+  DEBUG('t', "Rider %d Exit()\n", id);
+  e->Exit();
+  DEBUG('t', "Rider %d finished\n", id);
+}
+
+// elevator action
+void 
+elevatorAction(int id)
+{
+    building->RunElev(id);
+}
+
+void 
+rider1(int which)
+{
+    alarms->Pause(which*oprNum);
+    printf("No.%d 1->5 request\n",which);
+    rider(which,1,5);
+    printf("No.%d 1->5 reach\n",which);
+}
+
+void 
+rider2(int which)
+{
+    alarms->Pause(which*oprNum);
+    printf("No.%d 5->8 request \n",which);
+    rider(which,5,8);
+    printf("No.%d 5->8 reach\n",which);
+}
+
+void 
+rider3(int which)
+{
+    alarms->Pause(which*oprNum);
+    printf("No.%d 8->1 request\n",which);
+    rider(which,8,1);
+    printf("No.%d 8->1 reach\n",which);
+}
+
+// main thread
+void 
+mainThreadAction()
+{
+    // run elevator
+    building = new Building("office buildings\n",15,1);
+    Thread *elev = new Thread("thread for elevator\n");
+    elev->Fork(elevatorAction,1);
+
+    // run rider 
+    Thread *r1 = new Thread("rider 1");
+    r1->Fork(rider1,1); 
+
+    Thread *r2 = new Thread("rider 1");
+    r2->Fork(rider2,3); 
+
+    Thread *r3 = new Thread("rider 1");
+    r1->Fork(rider3,3); 
+
+    alarms->Pause(20*oprNum);
+    printf("all rider has reach dest and eixt\n");
+}
+
+
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -248,8 +344,6 @@ toDllistTest(VoidFunctionPtr func)
         t->Fork(func,i+1); 
     }
 } 
-
-
 
 void
 ThreadTest()
@@ -287,6 +381,9 @@ ThreadTest()
         break;
     case 9:
         toDllistTest(testAlarm);
+        break;
+    case 10:
+        mainThreadAction();
         break;
     default:
     	printf("No test specified.\n");

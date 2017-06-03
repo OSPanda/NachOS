@@ -30,7 +30,7 @@ Alarm::Pause(int howLong)
 	//use interup to make it atomicly
 	IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 	
-	int when = stats->totalTicks + howLong;// calculate the time to wake up  
+	int when = stats->totalTicks + howLong*TimerTicks;// calculate the time to wake up  
 	
 	list->SortedInsert(currentThread, when); // insert into list 
 	num++;
