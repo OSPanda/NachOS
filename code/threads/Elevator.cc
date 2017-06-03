@@ -22,6 +22,7 @@ Elevator::~Elevator()
 	delete con_closeDoor;
 }
 // signal exiters and enterers to action
+
 void 
 Elevator::OpenDoors()
 {
@@ -31,17 +32,21 @@ Elevator::OpenDoors()
 	// calculate close door num;
 	con_lock->Acquire();
 	//let rider outside go in
-	if(direction == 1){// up
-		int waiters = b->getFloors()[currentfloor].e[1].Waiters(); 
-		closeDoorNum = waiters > (capatity-occupancy)?(capatity-occupancy):waiters;
-		con_lock->Release();
-		b->getFloors()[currentfloor].e[1].Signal();
-	}else{// down
-		int waiters = b->getFloors()[currentfloor].e[0].Waiters(); 
-		closeDoorNum = waiters > (capatity-occupancy)?(capatity-occupancy):waiters;
-		con_lock->Release();
-		b->getFloors()[currentfloor].e[0].Signal(); 
-	}
+    int waiters = b->getFloors()[currentfloor].e[direction].Waiters(); 
+    closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
+    con_lock->Release();
+    b->getFloors()[currentfloor].e[direction].Signal();
+	// if(direction == 1){// up
+	// 	int waiters = b->getFloors()[currentfloor].e[1].Waiters(); 
+	// 	closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
+	// 	con_lock->Release();
+	// 	b->getFloors()[currentfloor].e[1].Signal();
+	// }else{// down
+	// 	int waiters = b->getFloors()[currentfloor].e[0].Waiters(); 
+	// 	closeDoorNum = waiters > (capacity - occupancy)?(capacity - occupancy):waiters;
+	// 	con_lock->Release();
+	// 	b->getFloors()[currentfloor].e[0].Signal(); 
+	// }
 }
 
 void 	
@@ -73,7 +78,7 @@ void
 Elevator::VisitFloor(int floor)
 {
 	// reach the floor 
-	alarms.Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
+	alarms->Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
 	currentfloor = floor;
 }
 
@@ -130,7 +135,7 @@ Elevator::RequestFloor(int floor)
 Building::Building(char *debugname, int numFloors, int numElevators)
 {
 	elevator = new Elevator(debugname,numFloors,1);
-	name = debugName
+	name = debugname;
 	srcUp = new bool[numFloors+1];
 	srcDown = new bool[numFloors+1];
 	floors = new Floor[numFloors+1]; 
