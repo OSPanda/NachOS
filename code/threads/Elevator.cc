@@ -91,20 +91,22 @@ Elevator::Enter()
 	if(occupancy == capacity){  //to avoid the rider request again 
 		con_lock->Release();
 		// to wait next time
-		if(direction == 1){
-			b->getFloors()[currentfloor].e[1].Complete();
-		}else{
-			b->getFloors()[currentfloor].e[0].Complete(); 
-		} 
+        b->getFloors()[currentfloor].e[direction].Complete();
+		// if(direction == 1){
+		// 	b->getFloors()[currentfloor].e[1].Complete();
+		// }else{
+		// 	b->getFloors()[currentfloor].e[0].Complete(); 
+		// } 
 		return false;
 	}else{
 		occupancy++;
 		con_lock->Release();
-		if(direction == 1){
-			b->getFloors()[currentfloor].e[1].Complete();
-		}else{
-			b->getFloors()[currentfloor].e[0].Complete(); 
-		}
+        b->getFloors()[currentfloor].e[direction].Complete();
+		// if(direction == 1){
+		// 	b->getFloors()[currentfloor].e[1].Complete();
+		// }else{
+		// 	b->getFloors()[currentfloor].e[0].Complete(); 
+		// }
 		return true;
 	}
 }
@@ -134,7 +136,7 @@ Elevator::RequestFloor(int floor)
 //building define
 Building::Building(char *debugname, int numFloors, int numElevators)
 {
-	elevator = new Elevator(debugname,numFloors,1);
+	elevator = new Elevator(debugname, numFloors, 1);
 	name = debugname;
 	srcUp = new bool[numFloors+1];
 	srcDown = new bool[numFloors+1];
@@ -146,7 +148,6 @@ Building::Building(char *debugname, int numFloors, int numElevators)
 Building::~Building()
 {
 	delete elevator;
-	delete[] src;	
 	delete[] floors;
 	delete[] srcUp;
 	delete[] srcDown;
@@ -202,18 +203,18 @@ Building::RunElev(int eid) {
     int next; // Destination
     while (true) {
         next = 0;
-        mutex.Acquire();
+        mutex->Acquire();
         if (elev->getDirection()) { // True when elevator is going down  
             // Find the farest floor having riders waiting to enter or exit the elevator in current direction
-            for (i = elev->getCurrentFloor(); i >= 1; --i) {
+            for (int i = elev->getCurrentFloor(); i >= 1; --i) {
                 if (srcDown[i] || elev->request[i]) { next = i; }
             }
         } else {
-            for (i = elev->getCurrentFloor(); i <= floorNum; ++i) {
+            for (int i = elev->getCurrentFloor(); i <= floorNum; ++i) {
                 if (srcUp[i] || elev->request[i]) { next = i; }
             }
         }
-        mutex.Release();
+        mutex->Release();
         if (!next && !elev->getOccupancy()) {    // No one onboard and no more waiting rider in current direction
             // Change direction
             elev->changeDirection();
@@ -222,7 +223,7 @@ Building::RunElev(int eid) {
         }
         assert(next > 0 && "Elevator having people onboard but the Request array is not set correctly.");
         if (elev->getDirection()) {
-            for (i = elev->getCurrentFloor(); i >= next; --i) {
+            for (int i = elev->getCurrentFloor(); i >= next; --i) {
                 elev->VisitFloor(i);
                 // If any rider wanna enter or exit on floor i, open then close door
                 if (srcDown[i] || elev->request[i]) {
@@ -232,7 +233,7 @@ Building::RunElev(int eid) {
                 }
             }
         } else {
-            for (i = elev->getCurrentFloor(); i <= next; ++i) {
+            for (int i = elev->getCurrentFloor(); i <= next; ++i) {
                 elev->VisitFloor(i);
                 if (srcUp[i] || elev->request[i]) {
                     DEBUG('t', "Elevator %d stopped at floor %d\n", eid, i);
