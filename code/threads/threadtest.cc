@@ -228,11 +228,16 @@ ThreadTest1()
     // SimpleThread(0);
 }
 
+void 
+testAlarm(int which)
+{
+    alarms->Pause(which*10);
+    printf("NO.%d thread finish its test",which);
+}
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
 //----------------------------------------------------------------------
-
 void 
 toDllistTest(VoidFunctionPtr func)
 {
@@ -243,6 +248,8 @@ toDllistTest(VoidFunctionPtr func)
         t->Fork(func,i+1); 
     }
 } 
+
+
 
 void
 ThreadTest()
@@ -277,6 +284,9 @@ ThreadTest()
     case 8:
         // to test BoundedBuffer.h
         toDllistTest(TestBoundedBuffer);
+        break;
+    case 9:
+        toDllistTest(testAlarm);
         break;
     default:
     	printf("No test specified.\n");

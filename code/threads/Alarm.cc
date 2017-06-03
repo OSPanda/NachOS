@@ -4,13 +4,25 @@
 int Alarm::num = 0; 
 Alarm::Alarm()
 {
-	list = new list(); 
+	list = new List(); 
 }
 
 Alarm::~Alarm()
 {
 	delete list; 
 }
+
+void 
+check(int  which)
+{
+	//反复检查当前有几个等待闹钟的线程，若为零则结束，若不为零则切换，
+	//静态变量
+	while(Alarm::num != 0){
+		currentThread->Yield();
+	}
+	return;
+}
+
 
 void 
 Alarm::Pause(int howLong)
@@ -26,7 +38,7 @@ Alarm::Pause(int howLong)
 	// create dummy thread to check 
 	if(num ==  1){
 		Thread *t = new Thread("dummy thread\n");
-		t->Fork(func,0); 
+		t->Fork(check,0); 
 	}
 
 	currentThread->Sleep();  // thread sleep 
@@ -48,7 +60,7 @@ Alarm::awake()
 	{
 		temp = list->SortedRemove(&when);
 		if(when <= stats->totalTicks){//time out 
-			scheduler->ReadyToRun(thread);// ----------> to discuss	 
+			scheduler->ReadyToRun(temp);// ----------> to discuss	 
 			num--;
 		}else{
 			// the others are postponed to now 
@@ -60,16 +72,6 @@ Alarm::awake()
 	(void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
 
-void 
-check(int  which)
-{
-	//反复检查当前有几个等待闹钟的线程，若为零则结束，若不为零则切换，
-	//静态变量
-	while(Alarm::num != 0){
-		currentThread->Yield();
-	}
-	return;
-}
 
 
 

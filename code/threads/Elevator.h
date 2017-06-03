@@ -8,10 +8,9 @@ existing interfaces.
 #ifndef ELEVATOR_H
 #define EVEVATOR_H
 #include "EventBarrier.h"
-#include　"synch.h"
 #include "system.h"
 #include <assert.h>
-#include <cmath>
+#include <math.h>
 #define _COSTPERFLOOR 100
 class Elevator {
    public:
@@ -99,9 +98,6 @@ class Building {
      Lock  *mutex;
      // insert your data structures here, if needed
 };
-
-
-
 
 #endif 
 

@@ -40,7 +40,7 @@ PROGRAM = nachos
 THREAD_H =../threads/copyright.h\
 	../threads/list.h\
 	../threads/scheduler.h\
-	../threads/synch.h \
+	../threads/synch.h\
 	../threads/synchlist.h\
 	../threads/system.h\
 	../threads/thread.h\
@@ -52,14 +52,16 @@ THREAD_H =../threads/copyright.h\
 	../threads/dllist.h\
 	../threads/Table.h\
 	../threads/BoundedBuffer.h\
-	../threads/Alarm.h\ 
+	../threads/EventBarrier.h\
+	../threads/Alarm.h\
 	../threads/Elevator.h\
-	../threads/EventBarrier.h
+
+
 
 THREAD_C =../threads/main.cc\
 	../threads/list.cc\
 	../threads/scheduler.cc\
-	../threads/synch.cc \
+	../threads/synch.cc\
 	../threads/synchlist.cc\
 	../threads/system.cc\
 	../threads/thread.cc\
@@ -73,15 +75,17 @@ THREAD_C =../threads/main.cc\
 	../threads/dllist-driver.cc\
 	../threads/Table.cc\
 	../threads/BoundedBuffer.cc\
-	../threads/Alarm.cc\ 
+	../threads/EventBarrier.cc\
+	../threads/Alarm.cc\
 	../threads/Elevator.cc\
-	../threads/EventBarrier.cc
+
+
 
 THREAD_S = ../threads/switch.s
 
 THREAD_O =main.o list.o scheduler.o synch.o synchlist.o system.o thread.o \
 	utility.o threadtest.o interrupt.o stats.o sysdep.o timer.o dllist.o dllist-driver.o\
-	Table.o BoundedBuffer.o Alarm.o Elevator.o EventBarrier.o
+	Table.o BoundedBuffer.o EventBarrier.o Alarm.o Elevator.o
 
 USERPROG_H = ../userprog/addrspace.h\
 	../userprog/bitmap.h\

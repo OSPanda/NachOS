@@ -73,7 +73,7 @@ void
 Elevator::VisitFloor(int floor)
 {
 	// reach the floor 
-	alarm.Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
+	alarms.Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
 	currentfloor = floor;
 }
 

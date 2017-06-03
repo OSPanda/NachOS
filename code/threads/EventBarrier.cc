@@ -20,7 +20,7 @@ EventBarrier::~EventBarrier()
 void
 EventBarrier::Wait()
 {
-`	barrierLock->Acquire();
+	barrierLock->Acquire();
 	if(status == false){
 		waitNum++;
 		signal_con->Wait(barrierLock);
@@ -32,16 +32,13 @@ EventBarrier::Wait()
 void
 EventBarrier::Signal()
 {// only one can call signal 
-
 	barrierLock->Acquire();
-	// set status to true , open the barrier 
 	status = true;
-
-	if(Waiters() != 0　){
+	if(Waiters()!=0){
 		// wake up other waiters
 		signal_con->Broadcast(barrierLock);
 		// blocked in complete condition 
-		complete_con->wait(barrierLock);
+		complete_con->Wait(barrierLock);
 	}else{
 		// if no one, just continue 
 		status = false;

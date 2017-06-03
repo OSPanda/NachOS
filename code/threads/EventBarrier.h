@@ -4,7 +4,7 @@
 #ifndef EVENTBARRIER_H
 #define EVENTBARRIER_H
 
-class EventBarrier{
+class EventBarrier {
 	public:
 		
 		EventBarrier();// constructor
@@ -34,7 +34,7 @@ class EventBarrier{
 		Lock *barrierLock;
 		Condition *signal_con;
 		Condition *complete_con; 
-}
+};
 
 
 #endif
