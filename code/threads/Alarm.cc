@@ -58,7 +58,7 @@ Alarm::awake()
 	int when,len=num;
 	for(int i=0;i < len; i++)
 	{
-		temp = list->SortedRemove(&when);
+		temp = (Thread*)list->SortedRemove(&when);
 		if(when <= stats->totalTicks){//time out 
 			scheduler->ReadyToRun(temp);// ----------> to discuss	 
 			num--;

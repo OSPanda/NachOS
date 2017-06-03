@@ -12,6 +12,9 @@ existing interfaces.
 #include <assert.h>
 #include <math.h>
 #define _COSTPERFLOOR 100
+
+class Building;
+
 class Elevator {
    public:
      Elevator(char *debugName, int numFloors, int myID);
@@ -29,12 +32,12 @@ class Elevator {
      void RequestFloor(int floor);    //   tell the elevator our destinationFloor
 
      // insert your methods here, if needed
-     int   getCurrentFloor() { return currentfloor; }
-     int   getOccupancy() { return occupancy; }
+     int  getCurrentFloor() { return currentfloor; }
+     int  getOccupancy() { return occupancy; }
      int  getDirection() { return direction; }
      void changeDirection() { direction = 1 - direction; }
-     void  setBuilding(Building *building) { b = building; }
-     bool  *request; // mark request floor,if it is true 
+     void setBuilding(Building *building) { b = building; }
+     bool *request; // mark request floor,if it is true 
 
    private:
      char *name;
@@ -58,18 +61,10 @@ class Elevator {
 class Floor{
 public:
     EventBarrier *e;
-    Floor()
-    {
-      e = new EventBarrier[2]; // 0 means down,1 means up
-    }
-    ~Floor()
-    {
-      delete[] e;　
-    }
+    Floor()  { e = new EventBarrier[2]; } // 0 means down,1 means up
+    ~Floor() { delete[] e; }
 };
 
-
-   
 class Building {
    public:
      Building(char *debugname, int numFloors, int numElevators);
