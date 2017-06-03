@@ -74,9 +74,9 @@ EventBarrier::Complete()
 int
 EventBarrier::Waiters()
 {
-	//barrierLock->Acquire();
+	barrierLock->Acquire();
 	int num = waitNum;
-	//barrierLock->Release();
+	barrierLock->Release();
 	return num;
 }
 

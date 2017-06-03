@@ -316,15 +316,15 @@ mainThreadAction()
 
     // run rider 
     Thread *r1 = new Thread("rider 1");
-    r1->Fork(rider1,1); 
+    r1->Fork(rider1,11); 
 
-    Thread *r2 = new Thread("rider 1");
-    r2->Fork(rider2,3); 
+    Thread *r2 = new Thread("rider 2");
+    r2->Fork(rider2,22); 
 
-    Thread *r3 = new Thread("rider 1");
-    r1->Fork(rider3,3); 
+    Thread *r3 = new Thread("rider 3");
+    r3->Fork(rider3,33); 
 
-    alarms->Pause(20*oprNum);
+    // while(true) currentThread->Yield;
     printf("all rider has reach dest and eixt\n");
 }
 

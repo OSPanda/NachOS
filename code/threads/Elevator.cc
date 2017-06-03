@@ -1,5 +1,5 @@
 #include "Elevator.h"
-
+#include <stdio.h>
 
 Elevator::Elevator(char *debugName, int numFloors, int myID) 
 {
@@ -12,6 +12,8 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
     con_closeDoor = new Condition("condition for close door");
     occupancy = 0;// can setting
     capacity = 100;
+    currentfloor = 1;
+    direction = 1; 
 }
 
 Elevator::~Elevator()
@@ -26,7 +28,8 @@ Elevator::~Elevator()
 void 
 Elevator::OpenDoors()
 {
-	//let rider inside go out 
+	//let rider inside go out
+	printf("on floor %d direction %d open door\n",currentfloor,direction); 
 	exit[currentfloor].Signal();
 
 	// calculate close door num;
@@ -54,7 +57,8 @@ Elevator::CloseDoors()
 {   //if capacity has no limit,make sure people all in  
 	// but if has limit,when it reach the capacity 
 	
-	//door should close 
+	//door should close
+	printf("on floor %d direction %d close door\n",currentfloor,direction);  
 	con_lock->Acquire();
 	while(closeDoorNum != 0){
 		con_closeDoor->Wait(con_lock);
@@ -76,6 +80,7 @@ void
 Elevator::VisitFloor(int floor)
 {
 	// reach the floor 
+	printf("visit floor %d direction %d\n",currentfloor,direction); 
 	alarms->Pause(abs(floor - currentfloor) * _COSTPERFLOOR);
 	currentfloor = floor;
 }
@@ -85,6 +90,7 @@ Elevator::Enter()
 {
 	// judge if there has enough occupancy
 	// if no return false;
+	printf("some one enter on floor %d direction %d \n",currentfloor,direction); 
 	con_lock->Acquire();
 	if(occupancy == capacity){  //to avoid the rider request again 
 		con_lock->Release();
@@ -112,6 +118,7 @@ Elevator::Enter()
 void
 Elevator::Exit()
 {
+	printf("exit on floor %d direction %d\n",currentfloor,direction); 	
 	con_lock->Acquire();
 	occupancy--;
 	con_lock->Release();
