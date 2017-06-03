@@ -60,15 +60,13 @@ Elevator::CloseDoors()
 		con_closeDoor->Wait(con_lock);
 	}
 
+    b->getLock()->Acquire(); // Will there be any possible deadlock?
 	if(direction == 1){
-		b->getLock()->Acquire(); 
 		b->getSrcUp()[currentfloor] = false;
-		b->getLock()->Release();
 	}else{
-		b->getLock()->Acquire(); 
 		b->getSrcDown()[currentfloor] = false;
-		b->getLock()->Release();
 	}
+    b->getLock()->Release();
 	
 	request[currentfloor] = false;
 	con_lock->Release();
@@ -162,7 +160,7 @@ Building::CallUp(int fromFloor)
 	// select one elevator 
 	// ...
 	mutex->Acquire();
-	srcUp[floor] = true;
+	srcUp[fromFloor] = true;
 	mutex->Release();
 }
 
@@ -175,7 +173,7 @@ Building::CallDown(int fromFloor)    //   ... down
 	// select one elevator 
 	// ...
 	mutex->Acquire();
-	srcDown[floor] = true;
+	srcDown[fromFloor] = true;
 	mutex->Release();
 }
 
