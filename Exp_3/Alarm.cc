@@ -15,8 +15,8 @@ Alarm::~Alarm()
 void 
 check(int  which)
 {
-	//反复检查当前有几个等待闹钟的线程，若为零则结束，若不为零则切换，
-	//静态变量
+	// check how many thread in waiting, if zero ,exit,else switch 
+	// using static var
 	while(Alarm::num != 0){
 		currentThread->Yield();
 	}
